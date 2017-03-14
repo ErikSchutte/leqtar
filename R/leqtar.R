@@ -1,3 +1,7 @@
+#' @title leqtar
+#' @author Erik Schutte
+#' @seealso https://github.com/ErikSchutte/leqtar/issues
+#' @
 # Function    : leqtar
 # Description : Performs linear regression analysis to test the association between
 #               genotype and expression data.
@@ -10,49 +14,47 @@ build_time <- as.character(Sys.time())
 build_version <- "0.1.0"
 cat("Building package", build_version, "on", build_time, "\n")
 
-# On load functionality -------------------------------------------------------------
-.onLoad <- function(libname, pkgname) {
-  op <- options()
-  op.devtools <- list(
-    devtools.path = "~/git/R-dev",
-    devtools.install.args = "",
-    devtools.name = "Erik Schutte",
-    devtools.desc.author = '"Erik Schutte <schutte.erik@hotmail.com>"',
-    devtools.desc.license = "What license is it under?",
-    devtools.desc.suggests = NULL,
-    devtools.desc = list()
-  )
-  toset <- !(names(op.devtools) %in% names(op))
-  if(any(toset)) options(op.devtools[toset])
-
-  invisible()
-}
-
 # leqtar main function --------------------------------------------------------------
+#' Main leqtar functiono
+#'
+#' @param genotypeFile the genotype file for all samples.
+#' @param expressionFile the expresion file for all samples.
+#' @param output_dir the output directory where results are stored, defaults to your home folder.
+#' @param covariateFile the covariates you want to use in your association analysis.
+#' @note genotypeFile and expressionFile are both required, the output_dir is set automatically and the covariateFile is optional.
 leqtar <- function(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL, covariateFile = NULL) {
 
   packageStartupMessage("
   [INFO] leqtar stands for Linear eQTL analysis in R
-  [INFO] Thanks for using this package, if you find any bugs, please report them to schutte.erik@hotmail.com
+  [INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues
   [INFO] Package version ", build_version, "
   [INFO] This package was build on ", build_time,
                         "\n")
 
-  arguments <- check_arguments(genotypeFile, expressionFile, output_dir, covariateFile)
-  print(arguments)
-}
+  # Processes arguments, returns a list with all arguments.
+  arguments <- process_arguments(genotypeFile, expressionFile, output_dir, covariateFile)
 
-check_arguments <- function(genotypeFile, expressionFile, output_dir, covariateFile) {
+}
+#' Processes the user input arguments
+#'
+#' @param genotypeFile the genotype file.
+#' @param expressionFile the expression file.
+#' @param output_dir the output dir, either default or user specified.
+#' @param covariateFile the covariates, either zero or defined.
+#' @return arguments object, containing all processed arguments.
+#' @importFrom "utils" "modifyList"
+process_arguments <- function(genotypeFile, expressionFile, output_dir, covariateFile) {
 
   # Create an arguments object
-  arguments <- list()
+  arguments <- list(genotype=NULL, expression=NULL, covariates=NULL,
+                    output=NULL, valid=FALSE)
 
   # Check if the genotype file is provided/exists.
   if ( is.null(genotypeFile) ) {
     stop("[STOP] No genotype file provided, provide a genotype file..\n")
   } else {
     if ( file.exists(genotypeFile) ) {
-      append(arguments, genotype=genotypeFile)
+      arguments <- modifyList(arguments, list(genotype = genotypeFile) )
     } else {
       stop("[STOP] The genotype file you provided does not exist..\n")
     }
@@ -63,7 +65,7 @@ check_arguments <- function(genotypeFile, expressionFile, output_dir, covariateF
     stop("[STOP] No expression file provided, provide a genotype file..\n")
   } else {
     if ( file.exists(expressionFile) ) {
-      append(arguments, expression=expressionFile)
+      arguments <- modifyList(arguments, list(expression = expressionFile) )
     } else {
       stop("[STOP] The expression file you provided does not exist..\n")
     }
@@ -73,7 +75,7 @@ check_arguments <- function(genotypeFile, expressionFile, output_dir, covariateF
     message("No covariateFile specified, moving on..\n")
   } else {
     if ( file.exists(covariateFile) ) {
-      append(arguments, covariates=covariateFile)
+      arguments <- modifyList(arguments, list(covariates = covariateFile) )
     } else {
       stop("[STOP] The covariate file you provided does not exist..\n")
     }
@@ -96,10 +98,10 @@ check_arguments <- function(genotypeFile, expressionFile, output_dir, covariateF
 
     # Path to output directory.
     output_dir = file.path(home, leqtar_out)
-    append(arguments, output_dir)
+    arguments <- modifyList(arguments, list(output = output_dir) )
   }
 
-  append(arguments, valid=TRUE)
-  return(TRUE)
+  arguments <- modifyList(arguments, list(valid = TRUE) )
+  return(arguments)
 }
 
