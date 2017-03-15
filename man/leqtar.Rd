@@ -2,23 +2,23 @@
 % Please edit documentation in R/leqtar.R
 \name{leqtar}
 \alias{leqtar}
-\title{Main leqtar functiono}
+\title{Main leqtar function}
 \usage{
 leqtar(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL,
   covariateFile = NULL)
 }
 \arguments{
-\item{genotypeFile}{the genotype file for all samples.}
+\item{genotypeFile}{the genotype file for all samples}
 
-\item{expressionFile}{the expresion file for all samples.}
+\item{expressionFile}{the expresion file for all samples}
 
-\item{output_dir}{the output directory where results are stored, defaults to your home folder.}
+\item{output_dir}{the output directory where results are stored, defaults to your home folder}
 
-\item{covariateFile}{the covariates you want to use in your association analysis.}
+\item{covariateFile}{the covariates you want to use in your association analysis}
 }
 \description{
-Main leqtar functiono
+Main leqtar function
 }
 \note{
-genotypeFile and expressionFile are both required, the output_dir is set automatically and the covariateFile is optional.
+genotypeFile and expressionFile are both required, the output_dir is set automatically and the covariateFile is optional
 }

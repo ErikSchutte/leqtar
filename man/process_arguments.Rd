@@ -7,16 +7,16 @@
 process_arguments(genotypeFile, expressionFile, output_dir, covariateFile)
 }
 \arguments{
-\item{genotypeFile}{the genotype file.}
+\item{genotypeFile}{the genotype file}
 
-\item{expressionFile}{the expression file.}
+\item{expressionFile}{the expression file}
 
-\item{output_dir}{the output dir, either default or user specified.}
+\item{output_dir}{the output dir, either default or user specified}
 
-\item{covariateFile}{the covariates, either zero or defined.}
+\item{covariateFile}{the covariates, either zero or defined}
 }
 \value{
-arguments object, containing all processed arguments.
+arguments object, containing all processed arguments
 }
 \description{
 Processes the user input arguments

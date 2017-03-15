@@ -1,12 +1,13 @@
-#' @title leqtar
-#' @author Erik Schutte
-#' @seealso https://github.com/ErikSchutte/leqtar/issues
-#' @
+#' @include zzz.R
+
+# leqtar
+# Erik Schutte
+# https://github.com/ErikSchutte/leqtar/issues
 # Function    : leqtar
 # Description : Performs linear regression analysis to test the association between
-#               genotype and expression data.
-# Input       : A genotype file/data.frame, expression file/data.frame.
-# Optional    : A covariate file/data.frame.
+#               genotype and expression data
+# Input       : A genotype file/data.frame, expression file/data.frame
+# Optional    : A covariate file/data.frame
 # Output      : Outputs the results to /results/data/
 
 # Build time and version ------------------------------------------------------------
@@ -15,33 +16,36 @@ build_version <- "0.1.0"
 cat("Building package", build_version, "on", build_time, "\n")
 
 # leqtar main function --------------------------------------------------------------
-#' Main leqtar functiono
+#' Main leqtar function
 #'
-#' @param genotypeFile the genotype file for all samples.
-#' @param expressionFile the expresion file for all samples.
-#' @param output_dir the output directory where results are stored, defaults to your home folder.
-#' @param covariateFile the covariates you want to use in your association analysis.
-#' @note genotypeFile and expressionFile are both required, the output_dir is set automatically and the covariateFile is optional.
+#' @export
+#' @param genotypeFile the genotype file for all samples
+#' @param expressionFile the expresion file for all samples
+#' @param output_dir the output directory where results are stored, defaults to your home folder
+#' @param covariateFile the covariates you want to use in your association analysis
+#' @note genotypeFile and expressionFile are both required, the output_dir is set automatically and the covariateFile is optional
 leqtar <- function(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL, covariateFile = NULL) {
 
-  packageStartupMessage("
-  [INFO] leqtar stands for Linear eQTL analysis in R
-  [INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues
-  [INFO] Package version ", build_version, "
-  [INFO] This package was build on ", build_time,
-                        "\n")
+  packageStartupMessage("[INFO] leqtar stands for Linear eQTL analysis in R",
+  "\n[INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues",
+  "\n[INFO] Package version ", build_version,
+  "\n[INFO] This package was build on ", build_time,"\n")
 
   # Processes arguments, returns a list with all arguments.
   arguments <- process_arguments(genotypeFile, expressionFile, output_dir, covariateFile)
 
+  # Parse arguments to leqtar_analysis.
+  leqtar_process_files(arguments)
+
 }
+# process_arguments function -----------------------------------------------------
 #' Processes the user input arguments
 #'
-#' @param genotypeFile the genotype file.
-#' @param expressionFile the expression file.
-#' @param output_dir the output dir, either default or user specified.
-#' @param covariateFile the covariates, either zero or defined.
-#' @return arguments object, containing all processed arguments.
+#' @param genotypeFile the genotype file
+#' @param expressionFile the expression file
+#' @param output_dir the output dir, either default or user specified
+#' @param covariateFile the covariates, either zero or defined
+#' @return arguments object, containing all processed arguments
 #' @importFrom "utils" "modifyList"
 process_arguments <- function(genotypeFile, expressionFile, output_dir, covariateFile) {
 
@@ -72,7 +76,7 @@ process_arguments <- function(genotypeFile, expressionFile, output_dir, covariat
   }
 
   if ( is.null(covariateFile) ) {
-    message("No covariateFile specified, moving on..\n")
+    message("[INFO] No covariateFile specified, moving on..\n")
   } else {
     if ( file.exists(covariateFile) ) {
       arguments <- modifyList(arguments, list(covariates = covariateFile) )
@@ -83,25 +87,51 @@ process_arguments <- function(genotypeFile, expressionFile, output_dir, covariat
 
   # Check if the output directory is specified, if not create the output directory.
   if ( is.null(output_dir) ) {
-    message("No output_dir specified, using default '~/leqtar/' as output directory..")
-    home = file.path("~/")
-    leqtar_out = file.path("leqtar/")
+    #home <- getwd()                                                  ### SPECIFIC NOTE: On release, change dev_home to home and remove home variable.
+    dev_home <- "~"
+    leqtar_out = file.path("leqtar", fsep=.Platform$file.sep)
+    message("[INFO] No output_dir specified, using default ",as.character( file.path(dev_home, leqtar_out, fsep=.Platform$file.sep) ), " as output directory..")
 
-    if ( !dir.exists( file.path(home, leqtar_out) ) ) {
-      message("\\___ The output direcotry does not yet exist, creating ", as.character( paste(home, leqtar_out, sep="") ), "..\n" )
-      dir.create( file.path(home, leqtar_out) )
-      dir.create( file.path(home, leqtar_out, "data/") )
-      dir.create( file.path(home, leqtar_out, "images/") )
+    if ( !dir.exists( file.path(dev_home, leqtar_out, fsep=.Platform$file.sep) ) ) {
+      message("\\___ The output direcotry does not yet exist, creating ", as.character( file.path(dev_home, leqtar_out, fsep=.Platform$file.sep) ), "..\n" )
+      dir.create( file.path(dev_home, leqtar_out, fsep=.Platform$file.sep) )
+      dir.create( file.path(dev_home, leqtar_out, "data/", fsep=.Platform$file.sep) )
+      dir.create( file.path(dev_home, leqtar_out, "images/", fsep=.Platform$file.sep) )
     } else {
-      message("\\___ The output directory ", as.character( paste(home, leqtar_out, sep="") ), " already exists, moving on..\n")
+      message("\\___ The output directory ", as.character( file.path(dev_home, leqtar_out, fsep=.Platform$file.sep) ), " already exists, moving on..\n")
     }
 
     # Path to output directory.
-    output_dir = file.path(home, leqtar_out)
+    output_dir = file.path(dev_home, leqtar_out, fsep=.Platform$file.sep)
     arguments <- modifyList(arguments, list(output = output_dir) )
   }
 
   arguments <- modifyList(arguments, list(valid = TRUE) )
+  message("[INFO] All arguments are processed..")
+  if (arguments$valid == T) {
+    message("\\___ Status: VALID, moving on..\n")
+  } else {
+    stop("\\___ Status: INVALID, exiting..\n Check your arguments, if you are convinced these are correct contact me on github.\n Shoot in an issue and don't forget your stacktrace() output.")
+  }
   return(arguments)
 }
 
+# get_os function -----------------------------------------------------
+#' Determine the current operating system.
+#'
+#' @return os as string, identifies the current os
+get_os <- function(){
+  sysinf <- Sys.info()
+  if (!is.null(sysinf)){
+    os <- sysinf['sysname']
+    if (os == 'Darwin')
+      os <- "osx"
+  } else { ## mystery machine
+    os <- .Platform$OS.type
+    if (grepl("^darwin", R.version$os))
+      os <- "osx"
+    if (grepl("linux-gnu", R.version$os))
+      os <- "linux"
+  }
+  return(c(.Platform$file.sep, tolower(os)))
+}

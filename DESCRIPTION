@@ -1,12 +1,21 @@
 Package: leqtar
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Linear eQTL analysis in R
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Erik Schutte
+Maintainer: Erik Schutte <schutte.erik@hotmail.com>
+Description: Performs Linear regression analysis on genotype and expression data to find the association between both.
+    Also capable of searching trough it's own resulting output and creating genotype plots on demand.
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
+Imports:
+    stringr,
+    gdata
+Collate: 
+    'data.R'
+    'zzz.R'
+    'leqtar.R'
+    'leqtar_analysis.R'
+    'leqtar_process_files.R'
