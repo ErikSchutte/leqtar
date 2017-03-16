@@ -67,6 +67,12 @@ leqtar_process_files <- function(arguments) {
   }
 }
 
+# read_files function ---------------------------------------------
+#' read_files function
+#'
+#' @param file_extension the file extension
+#' @param file_path the file path
+#' @return the file content
 read_files <- function(file_extension, file_path) {
   file_content <- tryCatch({
     message("[INFO] File extension: ", file_extension, "\n[INFO] File path: ", file_path)
