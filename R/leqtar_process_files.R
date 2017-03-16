@@ -6,12 +6,17 @@
 # leqtar_process_files -----------------------------------------------------------
 #' leqtar_process_files function
 #'
+#' Processes files based on their extensions.
+#' Checks the order of column- and row- names and dimensions of the data sets.
+#' If all checks pass, continue with genotype conversion.
+#'
 #' @param arguments path to file supplied by user.
 #' @return content of data files.
 #' @import "gdata"
 #' @import "stringr"
 #' @importFrom "utils" "read.table"
 #' @importFrom "utils" "read.csv"
+#' @note Hard requirement, no dots should be present in the file name, except for the extension.
 leqtar_process_files <- function(arguments) {
 
   # Extract file extensions --------------------
@@ -69,6 +74,9 @@ leqtar_process_files <- function(arguments) {
 
 # read_files function ---------------------------------------------
 #' read_files function
+#'
+#' Tries to read in files determined by their file extensions.
+#' Always returns the content of the given file.
 #'
 #' @param file_extension the file extension
 #' @param file_path the file path
