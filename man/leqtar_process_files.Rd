@@ -13,5 +13,10 @@ leqtar_process_files(arguments)
 content of data files.
 }
 \description{
-leqtar_process_files function
+Processes files based on their extensions.
+Checks the order of column- and row- names and dimensions of the data sets.
+If all checks pass, continue with genotype conversion.
+}
+\note{
+Hard requirement, no dots should be present in the file name, except for the extension.
 }

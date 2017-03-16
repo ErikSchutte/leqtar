@@ -27,10 +27,10 @@ cat("Building package", build_version, "on", build_time, "\n")
 leqtar <- function(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL, covariateFile = NULL) {
 
   packageStartupMessage("[INFO] leqtar stands for Linear eQTL analysis in R",
-  "\n[INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues",
-  "\n[INFO] Package version ", build_version,
-  "\n[INFO] This package was build on ", build_time,"\n")
-
+                        "\n[INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues",
+                        "\n[INFO] Package version ", build_version,
+                        "\n[INFO] This package was build on ", build_time)
+  message(getwd())
   # Processes arguments, returns a list with all arguments.
   arguments <- process_arguments(genotypeFile, expressionFile, output_dir, covariateFile)
 
@@ -49,69 +49,70 @@ leqtar <- function(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL
 #' @importFrom "utils" "modifyList"
 process_arguments <- function(genotypeFile, expressionFile, output_dir, covariateFile) {
 
-  # Create an arguments object
+  message("[INFO] ----------#----------")
+  # Bind the arguments variable.
   arguments <- list(genotype=NULL, expression=NULL, covariates=NULL,
                     output=NULL, valid=FALSE)
 
   # Check if the genotype file is provided/exists.
   if ( is.null(genotypeFile) ) {
-    stop("[STOP] No genotype file provided, provide a genotype file..\n")
+    stop("[STOP] No genotype file provided, provide a genotype file..")
   } else {
     if ( file.exists(genotypeFile) ) {
       arguments <- modifyList(arguments, list(genotype = genotypeFile) )
     } else {
-      stop("[STOP] The genotype file you provided does not exist..\n")
+      stop("[STOP] The genotype file you provided: ", as.character(genotypeFile), " does not exist..")
     }
   }
 
   # Check if the expression file is provided/exists.
   if ( is.null(expressionFile) ) {
-    stop("[STOP] No expression file provided, provide a genotype file..\n")
+    stop("[STOP] No expression file provided, provide a genotype file..")
   } else {
     if ( file.exists(expressionFile) ) {
       arguments <- modifyList(arguments, list(expression = expressionFile) )
     } else {
-      stop("[STOP] The expression file you provided does not exist..\n")
+      stop("[STOP] The expression file you provided: ", as.character(expressionFile), " does not exist..")
     }
   }
 
   if ( is.null(covariateFile) ) {
-    message("[INFO] No covariateFile specified, moving on..\n")
+    message("[INFO] No covariateFile specified, moving on..")
   } else {
     if ( file.exists(covariateFile) ) {
       arguments <- modifyList(arguments, list(covariates = covariateFile) )
     } else {
-      stop("[STOP] The covariate file you provided does not exist..\n")
+      stop("[STOP] The covariate file you provided: ", as.character(covariateFile), " does not exist..")
     }
   }
 
   # Check if the output directory is specified, if not create the output directory.
   if ( is.null(output_dir) ) {
-    #home <- getwd()                                                  ### SPECIFIC NOTE: On release, change dev_home to home and remove home variable.
+    home <- getwd()                                                  ### SPECIFIC NOTE: On release, change dev_home to home and remove home variable.
     dev_home <- "~"
     leqtar_out = file.path("leqtar", fsep=.Platform$file.sep)
-    message("[INFO] No output_dir specified, using default ",as.character( file.path(dev_home, leqtar_out, fsep=.Platform$file.sep) ), " as output directory..")
+    message("[INFO] No output_dir specified, using default ",as.character( file.path(home, leqtar_out, fsep=.Platform$file.sep) ), " as output directory..")
 
-    if ( !dir.exists( file.path(dev_home, leqtar_out, fsep=.Platform$file.sep) ) ) {
-      message("\\___ The output direcotry does not yet exist, creating ", as.character( file.path(dev_home, leqtar_out, fsep=.Platform$file.sep) ), "..\n" )
-      dir.create( file.path(dev_home, leqtar_out, fsep=.Platform$file.sep) )
-      dir.create( file.path(dev_home, leqtar_out, "data/", fsep=.Platform$file.sep) )
-      dir.create( file.path(dev_home, leqtar_out, "images/", fsep=.Platform$file.sep) )
+    if ( !dir.exists( file.path(home, leqtar_out, fsep=.Platform$file.sep) ) ) {
+      message("\\___   The output direcotry does not yet exist, creating ", as.character( file.path(home, leqtar_out, fsep=.Platform$file.sep) ), ".." )
+      dir.create( file.path(home, leqtar_out, fsep=.Platform$file.sep) )
+      dir.create( file.path(home, leqtar_out, "data/", fsep=.Platform$file.sep) )
+      dir.create( file.path(home, leqtar_out, "images/", fsep=.Platform$file.sep) )
     } else {
-      message("\\___ The output directory ", as.character( file.path(dev_home, leqtar_out, fsep=.Platform$file.sep) ), " already exists, moving on..\n")
+      message("\\___   The output directory ", as.character( file.path(home, leqtar_out, fsep=.Platform$file.sep) ), " already exists, moving on..")
     }
 
     # Path to output directory.
-    output_dir = file.path(dev_home, leqtar_out, fsep=.Platform$file.sep)
+    output_dir = file.path(home, leqtar_out, fsep=.Platform$file.sep)
     arguments <- modifyList(arguments, list(output = output_dir) )
   }
 
   arguments <- modifyList(arguments, list(valid = TRUE) )
   message("[INFO] All arguments are processed..")
   if (arguments$valid == T) {
-    message("\\___ Status: VALID, moving on..\n")
+    message("\\___   Status: VALID, moving on..")
   } else {
-    stop("\\___ Status: INVALID, exiting..\n Check your arguments, if you are convinced these are correct contact me on github.\n Shoot in an issue and don't forget your stacktrace() output.")
+    stop("\\___   Status: INVALID..\n Check your arguments, if you are convinced these are correct contact me on github.\n Shoot in an issue and don't forget your stacktrace() output..")
   }
   return(arguments)
 }

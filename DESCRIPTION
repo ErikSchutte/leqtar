@@ -15,7 +15,9 @@ Imports:
     gdata
 Collate: 
     'data.R'
+    'generate_test_data.R'
     'zzz.R'
     'leqtar.R'
     'leqtar_analysis.R'
     'leqtar_process_files.R'
+Suggests: testthat

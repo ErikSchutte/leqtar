@@ -20,15 +20,20 @@
 leqtar_process_files <- function(arguments) {
 
   # Extract file extensions --------------------
+  message("[INFO] ----------#----------")
   message("[INFO] Determine extensions..")
   genotype_file_extension <- unlist(str_split(arguments$genotype, "\\."))[2]
   expression_file_extension <- unlist(str_split(arguments$expression, "\\."))[2]
+
+  #Visibly bind 'covariates_file_extension'
+  covariates_file_extension <- NULL
   if ( !is.null(arguments$covariates) ) {
     covariates_file_extension <- unlist(str_split(arguments$covariates, "\\."))[2]
   }
   message("[INFO] File extensions determined..")
 
   # Determine read methods.
+  message("[INFO] ----------#----------")
   message("[INFO] Reading files..")
   # genotype --------------------
   genotype_file_content <- read_files(genotype_file_extension, arguments$genotype)
@@ -37,39 +42,74 @@ leqtar_process_files <- function(arguments) {
   expression_file_content <- read_files(expression_file_extension, arguments$expression)
 
   # covariates -------------------
+  #Visibly bind 'covariate_file_content'
+  covariate_file_content <- NULL
   if ( !is.null(arguments$covariates) ) {
     covariate_file_content <- read_files(covariate_file_extension, arguments$covariates)
   }
   message("[INFO] Files read..")
 
   # Check dimensions -------------------
-  message("\n[INFO] Checking dimensions..")
+  message("[INFO] ----------#----------")
+  message("[INFO] Checking dimensions..")
   dim_genotype <- dim(genotype_file_content)
   dim_expression <- dim(expression_file_content)
   if ( !is.null(arguments$covariates) ) {
     dim_covariates <- dim(covariates_file_content)
 
-    if (dim_genotype != dim_covariates) {
-      stop("[STOP] Dimensions of your genotype and covariate files do not match!")
-    } else if (dim_genotype != dim_expression) {
-      stop("[STOP] Dimensions of your genotype and expression files do not match!")
-    } else if (dim_covariates != dim_expression) {
-      stop("[STOP] Dimensions of your covariates and expression files do not match!")
+    if (dim_genotype[1] != dim_covariates[2]) {
+      stop("[STOP] The number of samples in your genotype and covariate files do not match!")
+    } else if (dim_genotype[1] != dim_expression[2]) {
+      stop("[STOP] The number of samples in your genotype and expression files do not match!")
+    } else if (dim_covariates[2] != dim_expression[2]) {
+      stop("[STOP] The number of samples in your covariates and expression files do not match!")
     }
   } else {
-    if (dim_genotype != dim_expression) {
-      stop("[STOP] Dimension of your genotype and expression files do not match!")
+    if (dim_genotype[1] != dim_expression[2]) {
+      stop("[STOP] The number of samples in your genotype and expression files do not match!")
     }
   }
   message("[INFO] Dimensions match..")
 
   # Check column name order ---------------------------------
-  message("[INFO] Checking column names..")
-  genotype_colnames <- colnames(genotype_file_content)
-  expression_colnames <- colnames(expression_file_content)
+  message("[INFO] ----------#----------")
+  # Bind 'covariates_samples'
+  covariates_samples <- NULL
+  message("[INFO] Checking sample names..")
+  genotype_samples <- rownames(genotype_file_content)
+  expression_samples <- colnames(expression_file_content)
   if ( !is.null(arguments$covariates) ) {
-    covariates_colnames <- colnames(covariates_file_content)
+    covariates_samples <- colnames(covariates_file_content)
   }
+
+  if ( !is.null(arguments$covariates) ) {
+    if ( all(genotype_samples == expression_samples) && all(genotype_samples == covaiates_samples) ) {
+      message("[INFO] Sample names match..")
+    } else if ( length( intersect(genotype_samples, expression_samples) ) == length( unique(genotype_samples) ) &&
+                length( intersect(genotype_samples, covariates_samples) ) == length( unique(genotype_samples) ) ) {
+      message("[INFO] Sample names match, but are in the wrong order..\n[INFO] Re-ordering samples..")
+      stop("[STOP] This is not yet implemented!")
+    } else {
+      message("[INFO] Some samples do not co-exists in all files..\n[INFO] Re-ordering samples and trying to run anyway..")
+      stop("[STOP] This is not yet implemented!")
+    }
+  } else {
+    if ( all(genotype_samples == expression_samples) ) {
+      message("[INFO] Sample names match..")
+    } else if ( length( intersect(genotype_samples, expression_samples) ) == length( unique(genotype_samples) ) ) {
+      message("[INFO] Sample names match, but are in the wrong order..\n[INFO] Re-ordering samples..")
+      stop("[STOP] This is not yet implemented!")
+    } else {
+      message("[INFO] Some samples do not co-exists in both files..\n[INFO] Re-ordering samples and trying to run anyway..")
+      stop("[STOP] This is not yet implemented!")
+    }
+  }
+
+  # Changing genotypes to frequencies -------------------------
+  message("[INFO] Checking genotype data..")
+  if ( typeof(genotype_file_content[1,1]) )
+
+  message("[INFO] ----------#----------")
 }
 
 # read_files function ---------------------------------------------
@@ -83,14 +123,15 @@ leqtar_process_files <- function(arguments) {
 #' @return the file content
 read_files <- function(file_extension, file_path) {
   file_content <- tryCatch({
-    message("[INFO] File extension: ", file_extension, "\n[INFO] File path: ", file_path)
+    message("[INFO] File path: ", file_path, "\n[INFO] File extension: ", file_extension)
     if (file_extension == "txt") {
-      read.table(file_path, stringsAsFactors = F, header = T, sep="\t")
+      read.table(file_path, stringsAsFactors = F, header = T, sep="\t", row.names=NULL)
     } else if (file_extension == "Rdata" | file_extension == "RData") {
       tmp_env <- new.env()
       load( file_path, tmp_env )
       file_content = get( ls( tmp_env )[1], envir=tmp_env )
       rm(tmp_env)
+      file_content
     } else if (file_extension == "xlsx" | file_extension == "xls") {
       read.xls(file_path)
     } else if (file_extension == "csv") {
@@ -98,7 +139,7 @@ read_files <- function(file_extension, file_path) {
     } else if (file_extension == "tsv") {
       read.table(file_path, stringsAsFactors = F, header = T, sep="\t")
     } else {
-      stop("[STOP] File extension: ", file_extension, " not supported!\nCurrently supports txt, xlsx, csv and tsv files.")
+      stop("[STOP] File extension: ", file_extension, " not supported!\nCurrently supports RData, txt, xlsx, csv and tsv files.")
     }
   },
   error=function(condition) {
