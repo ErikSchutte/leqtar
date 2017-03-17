@@ -5,7 +5,7 @@
 \title{Main leqtar function}
 \usage{
 leqtar(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL,
-  covariateFile = NULL)
+  covariateFile = NULL, genoToFreq = F)
 }
 \arguments{
 \item{genotypeFile}{the genotype file for all samples}
@@ -15,6 +15,8 @@ leqtar(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL,
 \item{output_dir}{the output directory where results are stored, defaults to your home folder}
 
 \item{covariateFile}{the covariates you want to use in your association analysis}
+
+\item{geneToFreq}{a variable that turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis.}
 }
 \description{
 Main leqtar function

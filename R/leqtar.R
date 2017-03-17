@@ -23,7 +23,7 @@ cat("Building package", build_version, "on", build_time, "\n")
 #' @param expressionFile the expresion file for all samples
 #' @param output_dir the output directory where results are stored, defaults to your home folder
 #' @param covariateFile the covariates you want to use in your association analysis
-#' @param geneToFreq a variable that turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis.
+#' @param genoToFreq a variable that turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis.
 #' @note genotypeFile and expressionFile are both required, the output_dir is set automatically and the covariateFile is optional
 leqtar <- function(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL, covariateFile = NULL, genoToFreq = F) {
 
@@ -31,9 +31,9 @@ leqtar <- function(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL
                         "\n[INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues",
                         "\n[INFO] Package version ", build_version,
                         "\n[INFO] This package was build on ", build_time)
-  message(getwd())
+
   # Processes arguments, returns a list with all arguments.
-  arguments <- process_arguments(genotypeFile, expressionFile, output_dir, covariateFile, geneToFreq)
+  arguments <- process_arguments(genotypeFile, expressionFile, output_dir, covariateFile, genoToFreq)
 
   # Parse arguments to leqtar_analysis.
   leqtar_process_files(arguments)
@@ -48,12 +48,12 @@ leqtar <- function(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL
 #' @param covariateFile the covariates, either zero or defined
 #' @return arguments object, containing all processed arguments
 #' @importFrom "utils" "modifyList"
-process_arguments <- function(genotypeFile, expressionFile, output_dir, covariateFile, geneToFreq) {
+process_arguments <- function(genotypeFile, expressionFile, output_dir, covariateFile, genoToFreq) {
 
   message("[INFO] ----------#----------")
   # Bind the arguments variable.
   arguments <- list(genotype=NULL, expression=NULL, covariates=NULL,
-                    output=NULL, valid=FALSE, geneToFreq=F)
+                    output=NULL, valid=FALSE, genoToFreq=F)
 
   # Check if the genotype file is provided/exists.
   if ( is.null(genotypeFile) ) {
@@ -89,9 +89,8 @@ process_arguments <- function(genotypeFile, expressionFile, output_dir, covariat
 
   # Check if the output directory is specified, if not create the output directory.
   if ( is.null(output_dir) ) {
-    home <- getwd()                                                  ### SPECIFIC NOTE: On release, change dev_home to home and remove home variable.
-    dev_home <- "~"
-    leqtar_out = file.path("leqtar", fsep=.Platform$file.sep)
+    home <- getwd()
+    leqtar_out = file.path("leqtar_out", fsep=.Platform$file.sep)
     message("[INFO] No output_dir specified, using default ", as.character( file.path(home, leqtar_out, fsep=.Platform$file.sep) ), " as output directory..")
 
     if ( !dir.exists( file.path(home, leqtar_out, fsep=.Platform$file.sep) ) ) {
@@ -107,7 +106,7 @@ process_arguments <- function(genotypeFile, expressionFile, output_dir, covariat
     output_dir = file.path(home, leqtar_out, fsep=.Platform$file.sep)
     arguments <- modifyList(arguments, list(output = output_dir) )
   } else {
-    leqtar_out = file.path("leqtar", fsep=.Platform$file.sep)
+    leqtar_out = file.path("leqtar_out", fsep=.Platform$file.sep)
     message("[INFO] output_dir specified, using ", as.character( file.path( output_dir, leqtar_out, fsep=.Platform$file.sep) ), " as output directory..")
 
     if ( !dir.exists( file.path(output_dir, leqtar_out, fsep=.Platform$file.sep) ) ) {
@@ -120,16 +119,17 @@ process_arguments <- function(genotypeFile, expressionFile, output_dir, covariat
     }
 
     # Path to output directory
+    output_dir = file.path(output_dir, leqtar_out, fsep=.Platform$file.sep)
     arguments <- modifyList( arguments, list(output = output_dir) )
   }
 
-  if ( geneToFreq == F ) {
+  if ( genoToFreq == F ) {
     message("[INFO] Expecting genotypes that are already converted to numbers..")
-    arguments <- modifyList( arguments, list(geneToFreq = geneToFreq) )
+    arguments <- modifyList( arguments, list(genoToFreq = genoToFreq) )
   } else {
     message("[INFO] Trying to turn genotypes (i.e. 'AA', 'AT', 'TT') into frequencies")
     stop("[STOP] This functionality is not yet implemented..")
-    arguments <- modifyList( arguments, list(geneToFreq = geneToFreq) )
+    arguments <- modifyList( arguments, list(genoToFreq = genoToFreq) )
   }
 
   arguments <- modifyList(arguments, list(valid = TRUE) )
