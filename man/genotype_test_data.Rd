@@ -4,7 +4,7 @@
 \name{genotype_test_data}
 \alias{genotype_test_data}
 \title{Example of a genotype data set.}
-\format{A data frame with 3 rows and 3 variables:
+\format{A data frame with 200 rows and 500 variables:
 \describe{
   \item{rs000001}{Example SNP with rs number 1}
   \item{rs000002}{Example SNP with rs number 2}

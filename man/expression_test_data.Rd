@@ -4,7 +4,7 @@
 \name{expression_test_data}
 \alias{expression_test_data}
 \title{Example of an expression data set.}
-\format{A data frame with 3 rows and 3 variables:
+\format{A data frame with 5000 rows and 200 variables:
 \describe{
   \item{sample1}{Sample 1 with expression in raw read counts per gene.}
   \item{sample2}{Sample 2 with expression in raw read counts per gene.}
