@@ -107,7 +107,12 @@ leqtar_process_files <- function(arguments) {
 
   # Changing genotypes to frequencies -------------------------
   message("[INFO] Checking genotype data..")
-  if ( typeof(genotype_file_content[1,1]) )
+  if ( class( as.vector(genotype_file_content[1,1]) ) == "character" && arguments$genoToFreq == F ) {
+    message("[INFO] Detected characters in genotype data. If you want leqtar to change them to\n[INFO] frequencies, set argument 'genoToFreq=T'..")
+  } else if ( class( as.vector(genotype_file_content[1,1]) ) == "character" && arguments$genoToFreq == T ) {
+    message("[INFO] Detected characters in genotype data. Option set to changed genotypes to frequencies..")
+    stop("[STOP] This is not yet implemented..")
+  }
 
   message("[INFO] ----------#----------")
 }
