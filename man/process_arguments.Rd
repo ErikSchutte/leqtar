@@ -5,7 +5,7 @@
 \title{Processes the user input arguments}
 \usage{
 process_arguments(genotypeFile, expressionFile, output_dir, covariateFile,
-  geneToFreq)
+  genoToFreq)
 }
 \arguments{
 \item{genotypeFile}{the genotype file}

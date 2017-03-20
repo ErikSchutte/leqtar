@@ -16,7 +16,7 @@ leqtar(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL,
 
 \item{covariateFile}{the covariates you want to use in your association analysis}
 
-\item{geneToFreq}{a variable that turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis.}
+\item{genoToFreq}{a variable that turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis.}
 }
 \description{
 Main leqtar function

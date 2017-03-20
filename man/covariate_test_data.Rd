@@ -9,6 +9,7 @@
   \item{sample1}{Sample 1 with covariates such as gender and time.}
   \item{sample2}{Sample 2 with covariates such as gender and time.}
   \item{sample3}{Sample 3 with covariates such as gender and time.}
+  ...
 }}
 \usage{
 covariate_test_data
