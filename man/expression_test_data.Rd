@@ -9,6 +9,7 @@
   \item{sample1}{Sample 1 with expression in raw read counts per gene.}
   \item{sample2}{Sample 2 with expression in raw read counts per gene.}
   \item{sample3}{Sample 3 with expression in raw read counts per gene.}
+  ...
 }}
 \usage{
 expression_test_data

@@ -104,7 +104,8 @@ leqtar_process_files <- function(arguments) {
       stop("[STOP] This is not yet implemented!")
     }
   }
-
+  message("[INFO] ----------#----------")
+  
   # Changing genotypes to frequencies -------------------------
   message("[INFO] Checking genotype data..")
   if ( class( as.vector(genotype_file_content[1,1]) ) == "character" && arguments$genoToFreq == F ) {
@@ -112,8 +113,19 @@ leqtar_process_files <- function(arguments) {
   } else if ( class( as.vector(genotype_file_content[1,1]) ) == "character" && arguments$genoToFreq == T ) {
     message("[INFO] Detected characters in genotype data. Option set to changed genotypes to frequencies..")
     stop("[STOP] This is not yet implemented..")
+  } else if ( class( as.vector(genotype_file_content[1,1]) )  == "integer" && arguments$genoToFreq == F ||
+              class( as.vector(genotype_file_content[1,1]) )  == "numeric" && arguments$genoToFreq == F ) {
+    message("[INFO] Detected numeric/integers as field values for genotype data, moving on..")
+  } else if ( class( as.vector(genotype_file_content[1,1]) )  == "integer" && arguments$genoToFreq == T ||
+              class( as.vector(genotype_file_content[1,1]) )  == "numeric" && arguments$genoToFreq == T ) {
+    message("[INFO] Genotype data is already numeric, moving on..")
+  } else if ( class( as.vector(genotype_file_content[1,1]) ) == "factor" ) {
+    stop("[STOP] Factor variables are not yet supported..")
+  } else {
+    stop("[STOP] Unexpected error, your genotype file is probably incorrect. If this is a persistent error,
+         report the issue in the github issue tracker..")
   }
-
+  message("[INFO] Genotype data OK..")
   message("[INFO] ----------#----------")
 }
 

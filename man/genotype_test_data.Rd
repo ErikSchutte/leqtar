@@ -9,6 +9,7 @@
   \item{rs000001}{Example SNP with rs number 1}
   \item{rs000002}{Example SNP with rs number 2}
   \item{rs000003}{Example SNP with rs number 3}
+  ...
 }}
 \usage{
 genotype_test_data

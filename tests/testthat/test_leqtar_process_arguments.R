@@ -2,14 +2,14 @@ library(leqtar)
 library(testthat)
 context("Testing input arguments are valid arguments per leqtar's input standard..")
 
-# Set files manually
+# Set files manually ------------
 genotypeFile = file.path("data", "genotype_test_data.RData", fsep=.Platform$file.sep)
 expressionFile = file.path("data", "expression_test_data.RData", fsep=.Platform$file.sep)
 covariateFile = file.path("data", "covariate_test_data.RData", fsep=.Platform$file.sep)
 output_dir = file.path(getwd())
 genoToFreq = F
 
-# Set files unittest
+# Set files unittest -------------
 genotypeFile = file.path("..", "..", "data", "genotype_test_data.RData", fsep=.Platform$file.sep)
 expressionFile = file.path("..", "..", "data", "expression_test_data.RData", fsep=.Platform$file.sep)
 covariateFile = file.path("..", "..", "data", "covariate_test_data.RData", fsep=.Platform$file.sep)

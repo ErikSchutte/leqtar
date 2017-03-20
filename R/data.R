@@ -7,6 +7,7 @@
 #'   \item{rs000001}{Example SNP with rs number 1}
 #'   \item{rs000002}{Example SNP with rs number 2}
 #'   \item{rs000003}{Example SNP with rs number 3}
+#'   ...
 #' }
 "genotype_test_data"
 
@@ -19,6 +20,7 @@
 #'   \item{sample1}{Sample 1 with expression in raw read counts per gene.}
 #'   \item{sample2}{Sample 2 with expression in raw read counts per gene.}
 #'   \item{sample3}{Sample 3 with expression in raw read counts per gene.}
+#'   ...
 #' }
 "expression_test_data"
 
@@ -31,5 +33,6 @@
 #'   \item{sample1}{Sample 1 with covariates such as gender and time.}
 #'   \item{sample2}{Sample 2 with covariates such as gender and time.}
 #'   \item{sample3}{Sample 3 with covariates such as gender and time.}
+#'   ...
 #' }
 "covariate_test_data"
