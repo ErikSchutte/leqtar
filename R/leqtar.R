@@ -135,7 +135,7 @@ process_arguments <- function(genotypeFile, expressionFile, output_dir, covariat
   arguments <- modifyList(arguments, list(valid = TRUE) )
   message("[INFO] All arguments are processed..")
   if (arguments$valid == T) {
-    message("\\___   Status: VALID, moving on..")
+    message("\\___   Status: OK, moving on..")
   } else {
     stop("\\___   Status: INVALID..\n Check your arguments, if you are convinced these are correct contact me on github.\n Shoot in an issue and don't forget your stacktrace() output..")
   }

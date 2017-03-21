@@ -30,7 +30,7 @@ leqtar_process_files <- function(arguments) {
   if ( !is.null(arguments$covariates) ) {
     covariates_file_extension <- unlist(str_split(arguments$covariates, "\\."))[2]
   }
-  message("[INFO] File extensions determined..")
+  message("[INFO] File extensions OK..")
 
   # Determine read methods.
   message("[INFO] ----------#----------")
@@ -47,7 +47,7 @@ leqtar_process_files <- function(arguments) {
   if ( !is.null(arguments$covariates) ) {
     covariate_file_content <- read_files(covariate_file_extension, arguments$covariates)
   }
-  message("[INFO] Files read..")
+  message("[INFO] Files OK..")
 
   # Check dimensions -------------------
   message("[INFO] ----------#----------")
@@ -58,25 +58,30 @@ leqtar_process_files <- function(arguments) {
     dim_covariates <- dim(covariates_file_content)
 
     if (dim_genotype[1] != dim_covariates[2]) {
-      stop("[STOP] The number of samples in your genotype and covariate files do not match!")
+      message("[WARN] The number of samples in your genotype and covariate files do not match..\n
+              \\___   leqtar will try to correct for this sample indifference..")
     } else if (dim_genotype[1] != dim_expression[2]) {
-      stop("[STOP] The number of samples in your genotype and expression files do not match!")
+      message("[WARN] The number of samples in your genotype and expression files do not match..\n
+              \\___   leqtar will try to correct for this sample indifference..")
     } else if (dim_covariates[2] != dim_expression[2]) {
-      stop("[STOP] The number of samples in your covariates and expression files do not match!")
+      message("[WARN] The number of samples in your covariates and expression files do not match..\n
+              \\___   leqtar will try to correct for this sample indifference..")
     }
   } else {
     if (dim_genotype[1] != dim_expression[2]) {
-      stop("[STOP] The number of samples in your genotype and expression files do not match!")
+      message("[WARN] The number of samples in your genotype and expression files do not match..\n
+              \\___   leqtar will try to correct for this sample indifference..")
     }
   }
-  message("[INFO] Dimensions match..")
+  message("[INFO] Dimensions OK..")
 
   # Check column name order ---------------------------------
   message("[INFO] ----------#----------")
+  message("[INFO] Checking sample names..")
+
   # Bind 'covariates_samples'
   covariates_samples <- NULL
-  message("[INFO] Checking sample names..")
-  genotype_samples <- rownames(genotype_file_content)
+  genotype_samples <- colnames(genotype_file_content)
   expression_samples <- colnames(expression_file_content)
   if ( !is.null(arguments$covariates) ) {
     covariates_samples <- colnames(covariates_file_content)
@@ -84,28 +89,53 @@ leqtar_process_files <- function(arguments) {
 
   if ( !is.null(arguments$covariates) ) {
     if ( all(genotype_samples == expression_samples) && all(genotype_samples == covaiates_samples) ) {
-      message("[INFO] Sample names match..")
-    } else if ( length( intersect(genotype_samples, expression_samples) ) == length( unique(genotype_samples) ) &&
-                length( intersect(genotype_samples, covariates_samples) ) == length( unique(genotype_samples) ) ) {
-      message("[INFO] Sample names match, but are in the wrong order..\n[INFO] Re-ordering samples..")
+      message("[INFO] Sample names OK..")
+    } else if ( length( intersect(genotype_samples, expression_samples) ) == length(genotype_samples) &&
+                length( intersect(genotype_samples, covariates_samples) ) == length(genotype_samples) ) {
+      message("[WARN] Sample names OK, but are in the wrong order..\n[INFO] Re-ordering samples..")
       stop("[STOP] This is not yet implemented!")
     } else {
-      message("[INFO] Some samples do not co-exists in all files..\n[INFO] Re-ordering samples and trying to run anyway..")
-      stop("[STOP] This is not yet implemented!")
+      message("[WARN] Some samples do not co-exists in all files..\n\\___   Re-ordering samples and trying to run anyway..")
+      covariates_in_expression <- which(covariates_samples %in% expression_samples)
+      covariates_in_genotype <- which(covariates_samples %in% genotype_samples)
+      expression_in_genotype <- which(expression_samples %in% genotype_samples)
+
+      if ( length(covariates_samples) != length(covariates_in_expression) ) {
+        message("[WARN] Detected different amount of samples in covariates file than in expression file..")
+      } else if ( length(covariates_samples) != length(covariates_in_genotype) ) {
+        message("[WARN] Detected different amount of samples in covariates file than in genotype file..")
+      } else if ( length(expression_samples) != length(expression_in_genotype) ) {
+        message("[WARN] Detected different amount of samples in expression file than in genotype file..")
+      }
     }
   } else {
     if ( all(genotype_samples == expression_samples) ) {
-      message("[INFO] Sample names match..")
+      message("[INFO] Sample names OK..")
     } else if ( length( intersect(genotype_samples, expression_samples) ) == length( unique(genotype_samples) ) ) {
-      message("[INFO] Sample names match, but are in the wrong order..\n[INFO] Re-ordering samples..")
+      message("[WARN] Sample names OK, but are in the wrong order..\n[INFO] Re-ordering samples..")
       stop("[STOP] This is not yet implemented!")
     } else {
-      message("[INFO] Some samples do not co-exists in both files..\n[INFO] Re-ordering samples and trying to run anyway..")
-      stop("[STOP] This is not yet implemented!")
+      message("[WARN] Some samples do not co-exists in both files..\n\\___   Re-ordering samples and trying to run anyway..")
+      # Make sure to check which expression samples are in geno, but exclude any samples that might be in geno which are not in expression.
+      expression_in_genotype <- which(expression_samples %in% genotype_samples)
+      genotype_in_expression <- genotype_samples[which(genotype_samples %in% expression_samples[expression_in_genotype])]
+
+      # Set subsets of data.
+      expression_file_content <- expression_file_content[,expression_in_genotype]
+      genotype_file_content <- genotype_file_content[,genotype_in_expression]
+
+      # Output changes.
+      message("[WARN] Previous amount of expression samples: ", length(expression_samples),
+              "\n\\___   Previous amount of genotype samples: ", length(genotype_samples),
+              "\n\\___   Excluded: ", as.character( length(expression_samples) - length( colnames(expression_file_content) ) ),
+              " samples from the expression data.",
+              "\n\\___   Exlcuded: ", as.character( length(genotype_samples) - length( colnames(genotype_file_content) ) ),
+              " samples from the genotype data.")
     }
+
   }
   message("[INFO] ----------#----------")
-  
+
   # Changing genotypes to frequencies -------------------------
   message("[INFO] Checking genotype data..")
   if ( class( as.vector(genotype_file_content[1,1]) ) == "character" && arguments$genoToFreq == F ) {
@@ -127,6 +157,7 @@ leqtar_process_files <- function(arguments) {
   }
   message("[INFO] Genotype data OK..")
   message("[INFO] ----------#----------")
+  message("[INFO] --------DONE!--------")
 }
 
 # read_files function ---------------------------------------------
@@ -140,7 +171,7 @@ leqtar_process_files <- function(arguments) {
 #' @return the file content
 read_files <- function(file_extension, file_path) {
   file_content <- tryCatch({
-    message("[INFO] File path: ", file_path, "\n[INFO] File extension: ", file_extension)
+    message("[INFO] File path: ", file_path, "\n\\___   File extension: ", file_extension)
     if (file_extension == "txt") {
       read.table(file_path, stringsAsFactors = F, header = T, sep="\t", row.names=NULL)
     } else if (file_extension == "Rdata" | file_extension == "RData") {
