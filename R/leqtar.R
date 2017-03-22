@@ -36,7 +36,10 @@ leqtar <- function(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL
   arguments <- process_arguments(genotypeFile, expressionFile, output_dir, covariateFile, genoToFreq)
 
   # Parse arguments to leqtar_analysis.
-  leqtar_process_files(arguments)
+  dataFiles <- leqtar_process_files(arguments)
+
+  # Parse data from the input files for analysis.
+  leqtar_analysis(dataFiles, arguments)
 
 }
 # process_arguments function -----------------------------------------------------
@@ -58,6 +61,8 @@ process_arguments <- function(genotypeFile, expressionFile, output_dir, covariat
   # Check if the genotype file is provided/exists.
   if ( is.null(genotypeFile) ) {
     stop("[STOP] No genotype file provided, provide a genotype file..")
+  } else if ( is.matrix(genotypeFile) || is.data.frame(genotypeFile) ) {
+    arguments <- modifyList(arguments, list(genotype = genotypeFile) )
   } else {
     if ( file.exists(genotypeFile) ) {
       arguments <- modifyList(arguments, list(genotype = genotypeFile) )
@@ -69,6 +74,8 @@ process_arguments <- function(genotypeFile, expressionFile, output_dir, covariat
   # Check if the expression file is provided/exists.
   if ( is.null(expressionFile) ) {
     stop("[STOP] No expression file provided, provide a genotype file..")
+  } else if ( is.matrix(expressionFile) || is.data.frame(expressionFile) ) {
+    arguments <- modifyList(arguments, list(expression = expressionFile) )
   } else {
     if ( file.exists(expressionFile) ) {
       arguments <- modifyList(arguments, list(expression = expressionFile) )
@@ -79,6 +86,8 @@ process_arguments <- function(genotypeFile, expressionFile, output_dir, covariat
 
   if ( is.null(covariateFile) ) {
     message("[INFO] No covariateFile specified, moving on..")
+  } else if ( is.matrix(covariateFile) || is.data.frame(covariateFile) ) {
+    arguments <- modifyList(arguments, list(covariates = covariateFile) )
   } else {
     if ( file.exists(covariateFile) ) {
       arguments <- modifyList(arguments, list(covariates = covariateFile) )
@@ -127,8 +136,7 @@ process_arguments <- function(genotypeFile, expressionFile, output_dir, covariat
     message("[INFO] Expecting genotypes that are already converted to numbers..")
     arguments <- modifyList( arguments, list(genoToFreq = genoToFreq) )
   } else {
-    message("[INFO] Trying to turn genotypes (i.e. 'AA', 'AT', 'TT') into frequencies")
-    stop("[STOP] This functionality is not yet implemented..")
+    message("[INFO] Leqtar will try to turn genotypes (i.e. 'AA', 'AT', 'TT') into frequencies")
     arguments <- modifyList( arguments, list(genoToFreq = genoToFreq) )
   }
 

@@ -28,8 +28,8 @@ snps_geno <- sapply(test_cases$test_snp_names, function(snp) {
   data.frame(snp=stringi::stri_rand_strings(200, 2, pattern = paste("[",pattern,"]", sep="") ) )
 })
 
-genotype_test_data <- data.frame(snps_geno)
-rownames(genotype_test_data) <- test_cases$test_sample_names
+genotype_test_data <- t(data.frame(snps_geno))
+colnames(genotype_test_data) <- test_cases$test_sample_names
 # dim(genotype_test_data)
 # length(test_cases$test_snp_names)
 # length(test_cases$test_sample_names)
