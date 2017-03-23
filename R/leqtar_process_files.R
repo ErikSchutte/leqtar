@@ -224,7 +224,9 @@ leqtar_process_files <- function(arguments) {
                 "\n\\___   Excluded: ", as.character( length(expression_samples) - length( colnames(expression_file_content) ) ),
                 " samples from the expression data.",
                 "\n\\___   Exlcuded: ", as.character( length(genotype_samples) - length( colnames(genotype_file_content) ) ),
-                " samples from the genotype data.")
+                " samples from the genotype data.",
+                "\n\\___   New number of expression samples: ", length( colnames(expression_file_content) ),
+                "\n\\___   New number of genotype samples: ", length ( colnames(genotype_file_content) ) )
       }
     }
 
