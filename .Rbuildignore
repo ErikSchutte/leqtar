@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 ^data-raw
 ^generate_test_data.R
+^leqtar_out

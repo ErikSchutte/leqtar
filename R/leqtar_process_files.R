@@ -176,19 +176,14 @@ leqtar_process_files <- function(arguments) {
       coexistingSamples <- intersect( intersect(covariates_samples, genotype_samples), expression_samples)
 
       # Create subsets.
-      genotype_file_content <- genotype_file_content[,coexistingSamples]
-      expression_file_content <- expression_file_content[,coexistingSamples]
-      covariates_file_content <- covariates_file_content[,coexistingSamples]
+      genotype_file_content <- genotype_file_content[,coexistingSamples, drop=F]
+      expression_file_content <- expression_file_content[,coexistingSamples, drop=F]
+      covariates_file_content <- covariates_file_content[,coexistingSamples, drop=F]
 
       # Re-order data.
-      genotype_file_content <- genotype_file_content[,mixedsort (colnames(genotype_file_content) )]
-      genotype_file_content <- genotype_file_content[mixedsort( rownames(genotype_file_content) ),]
-
-      expression_file_content <- expression_file_content[,mixedsort( colnames(expression_file_content) )]
-      expression_file_content <- expression_file_content[mixedsort( rownames(expression_file_content) ),]
-
-      covariates_file_content <- covariates_file_content[,mixedsort( colnames(covariates_file_content) )]
-      covariates_file_content <- covariates_file_content[mixedsort( rownames(covariates_file_content) ),]
+      genotype_file_content <- genotype_file_content[,mixedsort (colnames(genotype_file_content) ), drop=F]
+      expression_file_content <- expression_file_content[,mixedsort( colnames(expression_file_content) ), drop=F]
+      covariates_file_content <- covariates_file_content[,mixedsort( colnames(covariates_file_content) ), drop=F]
 
       # Output changes.
       message("[WARN] Initial number of expression samples: ", length(expression_samples),
@@ -216,15 +211,12 @@ leqtar_process_files <- function(arguments) {
         coexistingSamples <- intersect( genotype_samples, expression_samples)
 
         # Set subsets of data.
-        expression_file_content <- expression_file_content[,coexistingSamples]
-        genotype_file_content <- genotype_file_content[,coexistingSamples]
+        expression_file_content <- expression_file_content[,coexistingSamples, drop=F]
+        genotype_file_content <- genotype_file_content[,coexistingSamples, drop=F]
 
         # Re-order data.
-        expression_file_content <- expression_file_content[,mixedsort( colnames(expression_file_content) )]
-        expression_file_content <- expression_file_content[mixedsort( rownames(expression_file_content) ),]
-
-        genotype_file_content <- genotype_file_content[,mixedsort( colnames(genotype_file_content) )]
-        genotype_file_content <- genotype_file_content[mixedsort( rownames(genotype_file_content) ),]
+        expression_file_content <- expression_file_content[,mixedsort( colnames(expression_file_content) ), drop=F]
+        genotype_file_content <- genotype_file_content[,mixedsort( colnames(genotype_file_content) ), drop=F]
 
         # Output changes.
         message("[WARN] Initial number of expression samples: ", length(expression_samples),
