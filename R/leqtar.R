@@ -27,7 +27,7 @@ cat("Building package", build_version, "on", build_time, "\n")
 #' @note genotypeFile and expressionFile are both required, the output_dir is set automatically and the covariateFile is optional
 leqtar <- function(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL, covariateFile = NULL, genoToFreq = F) {
 
-  packageStartupMessage("[INFO] leqtar stands for Linear eQTL analysis in R",
+  message("[INFO] leqtar stands for Linear eQTL analysis in R",
                         "\n[INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues",
                         "\n[INFO] Package version ", build_version,
                         "\n[INFO] This package was build on ", build_time)
@@ -57,7 +57,7 @@ process_arguments <- function(genotypeFile, expressionFile, output_dir, covariat
   # Bind the arguments variable.
   arguments <- list(genotype=NULL, expression=NULL, covariates=NULL,
                     output=NULL, valid=FALSE, genoToFreq=F)
-  print(head(genotypeFile))
+
   # Check if the genotype file is provided/exists.
   if ( is.null(genotypeFile) ) {
     stop("[STOP] No genotype file provided, provide a genotype file..")
