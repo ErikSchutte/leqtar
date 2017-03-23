@@ -93,7 +93,7 @@ leqtar_analysis <- function(dataFiles, arguments) {
   unlink(output_file_name)
 
   # Save output.
-  run_name <- paste("run_", as.character(Sys.time()), "_", rownames(dataFiles$expression)[1], ".tsv", sep="")
+  run_name <- paste("run_", as.character(Sys.time()), "_", rownames(dataFiles$expression)[1], ".Rdata", sep="")
   save(me, file= file.path( arguments$output, "data", run_name, fsep=.Platform$file.sep) )
 
   message("[INFO] --------DONE!--------")
