@@ -305,6 +305,7 @@ read_files <- function(file_extension, file_path) {
       tmp_env <- new.env()
       load( file_path, tmp_env )
       file_content = get( ls( tmp_env )[1], envir=tmp_env )
+
       rm(tmp_env)
       file_content
     } else if (file_extension == "xlsx" | file_extension == "xls") {
