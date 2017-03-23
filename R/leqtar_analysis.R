@@ -35,7 +35,8 @@ leqtar_analysis <- function(dataFiles, arguments) {
 
   # Output file
   output_file_name <- tempfile()
-
+  print(colnames(dataFiles$genotype))
+  print(colnames(dataFiles$expression))
   # Set genotype variables for analysis ----------------
   snps = SlicedData$new()
   snps$CreateFromMatrix( as.matrix(dataFiles$genotype) )
