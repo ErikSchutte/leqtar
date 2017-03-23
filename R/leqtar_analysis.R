@@ -75,7 +75,6 @@ leqtar_analysis <- function(dataFiles, arguments) {
 
   # Analysis -----------------------
   message("[INFO] Running Linear Analysis..")
-  print(rownames(dataFiles$expression))
   me = Matrix_eQTL_engine(
     snps = snps,
     gene = expr,
@@ -93,8 +92,8 @@ leqtar_analysis <- function(dataFiles, arguments) {
   unlink(output_file_name)
 
   # Save output.
-  run_name <- paste("run_", as.character(Sys.time()), ".tsv", sep="")
-  write.table(me$all$eqtls, quote=F, file= file.path( arguments$output, "data", run_name, fsep=.Platform$file.sep), sep="\t" )
+  run_name <- paste("run_", as.character(Sys.time()), "_", print(rownames(dataFiles$expression)[1]), ".tsv", sep="")
+  save(me, file= file.path( arguments$output, "data", run_name, fsep=.Platform$file.sep) )
 
 
 
