@@ -57,11 +57,11 @@ process_arguments <- function(genotypeFile, expressionFile, output_dir, covariat
   # Bind the arguments variable.
   arguments <- list(genotype=NULL, expression=NULL, covariates=NULL,
                     output=NULL, valid=FALSE, genoToFreq=F)
-
+  print(head(genotypeFile))
   # Check if the genotype file is provided/exists.
   if ( is.null(genotypeFile) ) {
     stop("[STOP] No genotype file provided, provide a genotype file..")
-  } else if ( is.matrix(genotypeFile) || is.data.frame(genotypeFile) ) {
+  } else if ( is.matrix(genotypeFile) | is.data.frame(genotypeFile) ) {
     arguments <- modifyList(arguments, list(genotype = genotypeFile) )
   } else {
     if ( file.exists(genotypeFile) ) {
