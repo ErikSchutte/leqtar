@@ -75,6 +75,7 @@ leqtar_analysis <- function(dataFiles, arguments) {
 
   # Analysis -----------------------
   message("[INFO] Running Linear Analysis..")
+  print(rownames(dataFiles$expression))
   me = Matrix_eQTL_engine(
     snps = snps,
     gene = expr,

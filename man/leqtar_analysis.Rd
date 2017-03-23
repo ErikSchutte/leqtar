@@ -4,8 +4,13 @@
 \alias{leqtar_analysis}
 \title{leqtar_analysis function}
 \usage{
-leqtar_analysis()
+leqtar_analysis(dataFiles, arguments)
+}
+\arguments{
+\item{dataFiles}{a named list containing the data files that were processed by leqtar_process_files.R}
+
+\item{arguments}{parsed and processed arguments}
 }
 \description{
-leqtar_analysis function
+Uses linear regression analysis to identify the influence of a specific genotype on expression.
 }
