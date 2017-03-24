@@ -85,7 +85,7 @@ leqtar_process_files <- function(arguments) {
     genotype_file_content <- arguments$genotype
     expression_file_content <- arguments$expression
     if ( !is.null(arguments$covariates) ) {
-      covariate_file_content <- arguments$covariates
+      covariates_file_content <- arguments$covariates
     }
   }
   message("[INFO] Files OK..")
