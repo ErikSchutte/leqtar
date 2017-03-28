@@ -15,6 +15,8 @@ process_arguments(genotypeFile, expressionFile, output_dir, covariateFile,
 \item{output_dir}{the output dir, either default or user specified}
 
 \item{covariateFile}{the covariates, either zero or defined}
+
+\item{genoToFreq}{a flag that converts genotypes AA AT TT to frequencies 0 1 2}
 }
 \value{
 arguments object, containing all processed arguments

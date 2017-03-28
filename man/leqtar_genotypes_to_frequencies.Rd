@@ -7,7 +7,9 @@
 leqtar_genotypes_to_frequencies(snps, VERBOSE = F)
 }
 \arguments{
-\item{genotypeData}{the genotype file content}
+\item{snps}{the genotype file content (genotypeData)}
+
+\item{VERBOSE}{verbosity level, defaults to false}
 }
 \value{
 genotypeData as numeric matrix.
