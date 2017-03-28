@@ -12,7 +12,9 @@ LazyData: true
 RoxygenNote: 6.0.1
 Imports:
     stringr,
-    gdata
+    gdata,
+    MatrixEQTL,
+    gtools
 Collate: 
     'data.R'
     'generate_test_data.R'

@@ -2,7 +2,8 @@
 #'
 #' Turns genotypes into frequencies to Matrix eQTL is able to perform linear regression analysis.
 #'
-#' @param genotypeData the genotype file content
+#' @param snps the genotype file content (genotypeData)
+#' @param VERBOSE verbosity level, defaults to false
 #' @return genotypeData as numeric matrix.
 leqtar_genotypes_to_frequencies <- function(snps, VERBOSE = F) {
 

@@ -2,6 +2,9 @@ library(leqtar)
 library(testthat)
 context("Testing input arguments are valid arguments per leqtar's input standard..")
 
+# Set package root
+root <- rprojroot::find_package_root_file
+
 # Set files manually ------------
 genotypeFile = file.path("data", "genotype_test_data.RData", fsep=.Platform$file.sep)
 expressionFile = file.path("data", "expression_test_data.RData", fsep=.Platform$file.sep)

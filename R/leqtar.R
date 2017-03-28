@@ -49,6 +49,7 @@ leqtar <- function(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL
 #' @param expressionFile the expression file
 #' @param output_dir the output dir, either default or user specified
 #' @param covariateFile the covariates, either zero or defined
+#' @param genoToFreq a flag that converts genotypes AA AT TT to frequencies 0 1 2
 #' @return arguments object, containing all processed arguments
 #' @importFrom "utils" "modifyList"
 process_arguments <- function(genotypeFile, expressionFile, output_dir, covariateFile, genoToFreq) {
