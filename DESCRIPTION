@@ -23,4 +23,6 @@ Collate:
     'leqtar_analysis.R'
     'leqtar_genotypes_to_frequencies.R'
     'leqtar_process_files.R'
-Suggests: testthat
+Suggests: 
+    testthat,
+    rprojroot
