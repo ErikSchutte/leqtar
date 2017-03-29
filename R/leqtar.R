@@ -40,7 +40,6 @@ leqtar <- function(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL
 
   # Parse data from the input files for analysis.
   leqtar_analysis(dataFiles, arguments)
-
 }
 # process_arguments function -----------------------------------------------------
 #' Processes the user input arguments
