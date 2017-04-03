@@ -75,6 +75,7 @@ leqtar_analysis <- function(dataFiles, arguments) {
 
   # Analysis -----------------------
   message("[INFO] Running Linear Analysis..")
+  suppressMessages(
   me = Matrix_eQTL_engine(
     snps = snps,
     gene = expr,
@@ -87,13 +88,15 @@ leqtar_analysis <- function(dataFiles, arguments) {
     pvalue.hist = TRUE,
     min.pv.by.genesnp = FALSE,
     noFDRsaveMemory = FALSE);
+  )
 
   # Remove temp file.
   unlink(output_file_name)
 
+  message("[INFO] Detected eQTLs: ", me$all$neqtls, " in ", unlist(me$time.in.sec[[1]]), " seconds..")
+
   # Save output.
-  run_name <- paste(rownames(dataFiles$expression)[1], ".Rdata", sep="")
+  run_name <- paste(arguments$run_name, ".Rdata", sep="")
   save(me, file= file.path( arguments$output, "data", run_name, fsep=.Platform$file.sep) )
 
-  message("[INFO] --------DONE!--------")
 }

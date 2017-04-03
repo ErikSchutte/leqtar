@@ -8,12 +8,13 @@ leqtar_results <- function(arguments) {
 
   # Set paths.
   output_dir <- arguments$output_dir
+  print(output_dir)
   output_data <- file.path( output_dir, "data", fsep = .Platform$file.sep)
   output_img <- file.path( output_dir, "images", fsep = .Platform$file.sep)
   output_inf <- file.path( output_dir, "info", fsep = .Platform$file.sep)
 
   # Create Genotype plots.
-  leqtar_create_genotype_boxplots(output_img)
+  leqtar_create_genotype_boxplots(output_data, output_img)
 
   # Construct info tables.
   leqtar_create_tables(output_info)

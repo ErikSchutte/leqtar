@@ -2,25 +2,31 @@
 % Please edit documentation in R/leqtar.R
 \name{leqtar}
 \alias{leqtar}
-\title{Main leqtar function}
+\title{Leqtar}
 \usage{
-leqtar(genotypeFile = NULL, expressionFile = NULL, output_dir = NULL,
-  covariateFile = NULL, genoToFreq = F)
+leqtar(genotypeFile = NULL, expressionFile = NULL, covariateFile = NULL,
+  output_dir = NULL, run_name = NULL, genoToFreq = F, forceRun = F)
 }
 \arguments{
-\item{genotypeFile}{the genotype file for all samples}
+\item{genotypeFile}{[REQUIRED] A Genotype file. SNP names are expected as colnames and sample names as rownames.}
 
-\item{expressionFile}{the expresion file for all samples}
+\item{expressionFile}{[REQUIRED] A Phenotype file. Sample names are expected as colnames and stimulations/genes as rownames.}
 
-\item{output_dir}{the output directory where results are stored, defaults to your home folder}
+\item{covariateFile}{[OPTIONAL] A Covariate file containing covariates. Sample names are expected as colnames and covariates as rownames.}
 
-\item{covariateFile}{the covariates you want to use in your association analysis}
+\item{output_dir}{[OPTIONAL] A relative path from your current working directory or an absolute path to a specific directory. The results will be stored in this location.}
 
-\item{genoToFreq}{a variable that turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis.}
+\item{run_name}{[REQUIRED] A name that will be used for the current 'run'.}
+
+\item{genoToFreq}{[OPTIONAL] Turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis.}
+
+\item{forceRun}{[OPTIONAL] Normally Leqtar perserves data, by turning this to `TRUE` runs that already exist will be overwritten.}
 }
 \description{
-Main leqtar function
+Leqtar uses a linear regression models for eQTL analysis. It has a multitude of options, play around with the test data that is availble to get a good idea of your optimal settings.
+Leqtar tries to do much of the normal pre-processing work for you. Leqtar corrects sample differences, dimensions problems, 'cell' type differences and other things.
+Please note to always double check your results and if there are any issues, please refer to https://github.com/ErikSchutte/leqtar/issues. This is a work in progress, I expect there to be bugs.
 }
 \note{
-genotypeFile and expressionFile are both required, the output_dir is set automatically and the covariateFile is optional
+For a complete view of how to run and use Leqtar, please visit https://github.com/ErikSchutte/leqtar.
 }

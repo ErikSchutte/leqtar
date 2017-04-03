@@ -16,21 +16,27 @@ build_version <- "0.1.0"
 cat("Building package", build_version, "on", build_time, "\n")
 
 # leqtar main function --------------------------------------------------------------
-#' Main leqtar function
+#' Leqtar
+#'
+#' Leqtar uses a linear regression models for eQTL analysis. It has a multitude of options, play around with the test data that is availble to get a good idea of your optimal settings.
+#' Leqtar tries to do much of the normal pre-processing work for you. Leqtar corrects sample differences, dimensions problems, 'cell' type differences and other things.
+#' Please note to always double check your results and if there are any issues, please refer to https://github.com/ErikSchutte/leqtar/issues. This is a work in progress, I expect there to be bugs.
 #'
 #' @export
-#' @param genotypeFile the genotype file for all samples
-#' @param expressionFile the expresion file for all samples
-#' @param output_dir the output directory where results are stored, defaults to your home folder
-#' @param covariateFile the covariates you want to use in your association analysis
-#' @param genoToFreq a variable that turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis.
-#' @note genotypeFile and expressionFile are both required, the output_dir is set automatically and the covariateFile is optional
+#' @param genotypeFile [REQUIRED] A Genotype file. SNP names are expected as colnames and sample names as rownames.
+#' @param expressionFile [REQUIRED] A Phenotype file. Sample names are expected as colnames and stimulations/genes as rownames.
+#' @param run_name [REQUIRED] A name that will be used for the current 'run'.
+#' @param covariateFile [OPTIONAL] A Covariate file containing covariates. Sample names are expected as colnames and covariates as rownames.
+#' @param output_dir [OPTIONAL] A relative path from your current working directory or an absolute path to a specific directory. The results will be stored in this location.
+#' @param genoToFreq [OPTIONAL] Turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis.
+#' @param forceRun [OPTIONAL] Normally Leqtar perserves data, by turning this to `TRUE` runs that already exist will be overwritten.
+#' @note For a complete view of how to run and use Leqtar, please visit https://github.com/ErikSchutte/leqtar.
 leqtar <- function(genotypeFile = NULL, expressionFile = NULL, covariateFile = NULL, output_dir = NULL, run_name = NULL, genoToFreq = F, forceRun = F) {
 
   message("[INFO] leqtar stands for Linear eQTL analysis in R",
-                        "\n[INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues",
-                        "\n[INFO] Package version ", build_version,
-                        "\n[INFO] This package was build on ", build_time)
+          "\n[INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues",
+          "\n[INFO] Package version ", build_version,
+          "\n[INFO] This package was build on ", build_time)
 
   # Processes arguments, returns a list with all arguments.
   arguments <- process_arguments(genotypeFile, expressionFile, covariateFile, output_dir, run_name, genoToFreq, forceRun)
@@ -43,6 +49,8 @@ leqtar <- function(genotypeFile = NULL, expressionFile = NULL, covariateFile = N
 
   # Process results.
   leqtar_results(arguments)
+
+  message("[INFO] --------DONE!--------")
 }
 # process_arguments function -----------------------------------------------------
 #' Processes the user input arguments
@@ -99,74 +107,16 @@ process_arguments <- function(genotypeFile, expressionFile, covariateFile, outpu
     }
   }
 
-  # Check if the output directory is specified, if not create the output directory.
-  if ( is.null(output_dir) ) {
-    home <- getwd()
-    leqtar_out = file.path("leqtar_out", fsep=.Platform$file.sep)
-    message("[INFO] No output_dir specified, using default ", as.character( file.path(home, leqtar_out, fsep=.Platform$file.sep) ), " as output directory..")
-
-    if ( !dir.exists( file.path(home, leqtar_out, fsep=.Platform$file.sep) ) ) {
-      message("\\___   The output direcotry does not yet exist, creating ", as.character( file.path(home, leqtar_out, fsep=.Platform$file.sep) ), ".." )
-      dir.create( file.path(home, leqtar_out, fsep=.Platform$file.sep) )
-
-      if ( !dir.exists( file.path( home, leqtar_out, run_name) ) ) {
-        message("\\___   Creating directory for current run: ", run_name, "..")
-        dir.create( file.path(home, leqtar_out, run_name, fsep=.Platform$file.sep) )
-      } else if ( forceRun == T && dir.exists( file.path( home, leqtar_out, run_name) ) ) {
-        message("\\___   Overwrite directory for current run: ", run_name, "..")
-        unlist( file.path( home, leqtar_out, run_name), recursive = T )
-        dir.create( file.path(home, leqtar_out, run_name, fsep=.Platform$file.sep) )
-      } else {
-        stop("[STOP] The directory with run name: ", run_name, " already exists, please choose a different name or use forceRun = TRUE to overwrite data..")
-      }
-
-      # Merge paths.
-      leqtar_out <- file.path(home, leqtar_out, run_name, fsep=.Platform$file.sep)
-
-      if ( !dir.exists( file.path(leqtar_out, "data", fsep=.Platform$file.sep) ) ) {
-        message("\\___   Creating subdirectory 'data' for run: ", run_name, "..")
-        dir.create( file.path(leqtar_out, "data", fsep=.Platform$file.sep) )
-      }
-      if ( !dir.exists( file.path(leqtar_out, "data", fsep=.Platform$file.sep) ) ) {
-        message("\\___   Creating subdirectory 'data' for run: ", run_name, "..")
-        dir.create( file.path(leqtar_out, "images", fsep=.Platform$file.sep) )
-
-        if ( !dir.exists( file.path(leqtar_out, "data", "manhattan", fsep=.Platform$file.sep) ) ) {
-          message("\\___   Creating subdirectory 'manhattan' for run: ", run_name, "..")
-          dir.create( file.path(leqtar_out, "images", "manhattan", fsep=.Platform$file.sep) )
-        }
-      }
-      if ( !dir.exists( file.path(leqtar_out, "data", fsep=.Platform$file.sep) ) ) {
-        message("\\___   Creating subdirectory 'data' for run: ", run_name, "..")
-        dir.create( file.path(leqtar_out, "info", fsep=.Platform$file.sep) )
-      }
-
-
-
-    } else {
-      message("\\___   The output directory ", as.character( file.path(home, leqtar_out, fsep=.Platform$file.sep) ), " already exists, moving on..")
-    }
-
-    # Path to output directory.
-    output_dir = file.path(home, leqtar_out, fsep=.Platform$file.sep)
-    arguments <- modifyList(arguments, list(output = output_dir) )
+  if ( is.null(run_name) ) {
+    stop("[STOP] A name for the current run is required, preferably a unique one. See '?leqtar' for 'forceRun'..")
   } else {
-    leqtar_out = file.path("leqtar_out", fsep=.Platform$file.sep)
-    message("[INFO] output_dir specified, using ", as.character( file.path( output_dir, leqtar_out, fsep=.Platform$file.sep) ), " as output directory..")
-
-    if ( !dir.exists( file.path(output_dir, leqtar_out, fsep=.Platform$file.sep) ) ) {
-      message("\\___   The output direcotry does not yet exist, creating ", as.character( file.path(output_dir, leqtar_out, fsep=.Platform$file.sep) ), ".." )
-      dir.create( file.path(output_dir, leqtar_out, fsep=.Platform$file.sep) )
-      dir.create( file.path(output_dir, leqtar_out, "data", fsep=.Platform$file.sep) )
-      dir.create( file.path(output_dir, leqtar_out, "images", fsep=.Platform$file.sep) )
-    } else {
-      message("\\___   The output directory ", as.character( file.path(output_dir, leqtar_out, fsep=.Platform$file.sep) ), " already exists, moving on..")
-    }
-
-    # Path to output directory
-    output_dir = file.path(output_dir, leqtar_out, fsep=.Platform$file.sep)
-    arguments <- modifyList( arguments, list(output = output_dir) )
+    arguments <- modifyList(arguments, list(run_name = run_name) )
   }
+
+  # Check if the output directory is specified, if not create the output directory.
+  sub_arguments <- init_basic_directories(output_dir, run_name, arguments, forceRun)
+  output_dir <- sub_arguments$output_dir
+  arguments <- sub_arguments$arguments
 
   if ( genoToFreq == F ) {
     message("[INFO] Expecting genotypes that are already converted to numbers..")
@@ -183,6 +133,7 @@ process_arguments <- function(genotypeFile, expressionFile, covariateFile, outpu
   } else {
     stop("\\___   Status: INVALID..\n Check your arguments, if you are convinced these are correct contact me on github.\n Shoot in an issue and don't forget your stacktrace() output..")
   }
+  message("[INFO] ----------#----------")
   return(arguments)
 }
 
@@ -204,4 +155,71 @@ get_os <- function(){
       os <- "linux"
   }
   return(c(.Platform$file.sep, tolower(os)))
+}
+
+# create intial directories ----------------------------------------------------
+#' Creates initial file structure for leqtar output.
+#' @param output_dir the output_dir variable set by the user.
+#' @param run_name variable name for current run.
+#' @param arguments the empty/partially empty arguments variable used for processing.
+#' @return output_dir contains the output path for the current run
+#' @return arguments modified arguments list.
+init_basic_directories <- function(output_dir, run_name, arguments, forceRun) {
+
+  leqtar_out = file.path("leqtar_out", fsep=.Platform$file.sep)
+
+  if ( is.null(output_dir) ) {
+    output_dir <- getwd()
+    message("[INFO] No output_dir specified, using default ", as.character( file.path(output_dir, leqtar_out, run_name, fsep=.Platform$file.sep) ), " as output directory..")
+  } else {
+    message("[INFO] output_dir specified, using ", as.character( file.path( output_dir, leqtar_out, run_name, fsep=.Platform$file.sep) ), " as output directory..")
+  }
+
+  if ( !dir.exists( file.path(output_dir, leqtar_out, fsep=.Platform$file.sep) ) ) {
+    message("\\___   The output directory 'leqtar_out' does not yet exists, creating leqtar_out..")
+    dir.create( file.path(output_dir, leqtar_out, fsep=.Platform$file.sep) )
+  }
+
+  if ( !dir.exists( file.path(output_dir, leqtar_out, run_name, fsep=.Platform$file.sep) ) ) {
+    message("\\___   The output direcotry does not yet exist, creating ", as.character( file.path(output_dir, leqtar_out, run_name, fsep=.Platform$file.sep) ), ".." )
+    dir.create( file.path(output_dir, leqtar_out, run_name, fsep=.Platform$file.sep) )
+
+  } else if ( forceRun == T && dir.exists( file.path( output_dir, leqtar_out, run_name) ) ) {
+    message("\\___   Overwrite directory for current run: ", as.character( file.path(output_dir, leqtar_out, run_name, fsep=.Platform$file.sep) ), "..")
+    unlink( file.path(output_dir, leqtar_out, run_name, fsep=.Platform$file.sep), recursive = T )
+    dir.create( file.path(output_dir, leqtar_out, run_name, fsep=.Platform$file.sep) )
+
+  } else {
+    stop("[STOP] The directory with run name: ", as.character( file.path(output_dir, leqtar_out, run_name, fsep=.Platform$file.sep) ), " already exists..\n\\___   Please choose a different name or use 'forceRun = TRUE' to overwrite data..")
+  }
+
+  # Merge paths.
+  leqtar_out <- file.path(output_dir, leqtar_out, run_name, fsep=.Platform$file.sep)
+
+  if ( !dir.exists( file.path(leqtar_out, "data", fsep=.Platform$file.sep) ) ) {
+    message("\\___   Creating subdirectory 'data' for run: ", run_name, "..")
+    dir.create( file.path(leqtar_out, "data", fsep=.Platform$file.sep) )
+  }
+  if ( !dir.exists( file.path(leqtar_out, "data", "images", fsep=.Platform$file.sep) ) ) {
+    message("\\___   Creating subdirectory 'images' for run: ", run_name, "..")
+    dir.create( file.path(leqtar_out, "images", fsep=.Platform$file.sep) )
+
+    if ( !dir.exists( file.path(leqtar_out, "data", "images", "manhattan", fsep=.Platform$file.sep) ) ) {
+      message("\\___   Creating subdirectory 'manhattan' for run: ", run_name, "..")
+      dir.create( file.path(leqtar_out, "images", "manhattan", fsep=.Platform$file.sep) )
+    }
+    if ( !dir.exists( file.path(leqtar_out, "data", "images", "genotype", fsep=.Platform$file.sep) ) ) {
+      message("\\___   Creating subdirectory 'genotype' for run: ", run_name, "..")
+      dir.create( file.path(leqtar_out, "images", "genotype", fsep=.Platform$file.sep) )
+    }
+  }
+  if ( !dir.exists( file.path(leqtar_out, "tables", fsep=.Platform$file.sep) ) ) {
+    message("\\___   Creating subdirectory 'tables' for run: ", run_name, "..")
+    dir.create( file.path(leqtar_out, "tables", fsep=.Platform$file.sep) )
+  }
+
+  # Path to output directory.
+  output_dir = file.path(leqtar_out, fsep=.Platform$file.sep)
+  arguments <- modifyList(arguments, list(output = output_dir) )
+  return( list( output_dir=output_dir, arguments=arguments) )
 }

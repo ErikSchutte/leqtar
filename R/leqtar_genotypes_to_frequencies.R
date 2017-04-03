@@ -11,7 +11,7 @@ leqtar_genotypes_to_frequencies <- function(snps, VERBOSE = F) {
   snps <- t(snps)
 
   # Add a row to the data frame with MAF where the alleles will be stored.
-  tmp.df <- t(data.frame(MAF=rep("",length(colnames(snps)))))
+  tmp.df <- t( data.frame( MAF=rep( "", length( colnames(snps) ) ) ) )
   snps.genotype <- snps # Copy of snps that won't be changed to frequencies.
   snps.genotype <- rbind(snps.genotype, tmp.df) # after re-arangement bind alleles to genotypes.
 
@@ -20,8 +20,9 @@ leqtar_genotypes_to_frequencies <- function(snps, VERBOSE = F) {
   snps.discarded <- c()
   snps.discarded.pos <- c()
   snps.discarded.counter <- 0
+
   # For every column in the genotype data.
-  for (i in 1:ncol(snps)) {
+  for ( i in 1:ncol(snps) ) {
 
     # Verbose
     if ( VERBOSE == TRUE ) {
@@ -36,7 +37,7 @@ leqtar_genotypes_to_frequencies <- function(snps, VERBOSE = F) {
     if ( length(alleles.all) < 3 & min(alleles.all) < 2) {
 
       # Set an index for the SNP, so that it can be removed later.
-      snps.discarded.pos <- c(snps.discarded.pos,i)
+      snps.discarded.pos <- c(snps.discarded.pos, i)
 
       # Store the discarded SNP for later review.
       snps.discarded <- c(snps.discarded, colnames(snps)[i])
@@ -230,8 +231,11 @@ leqtar_genotypes_to_frequencies <- function(snps, VERBOSE = F) {
   }
 
   # Remove discarded snps from data set.
-  snps <- snps[-snps.discarded.pos,]
-  snps.freq <- snps.freq[,-snps.discarded.pos]
+  if ( !is.null(snps.discarded) ) {
+    snps <- snps[-snps.discarded.pos,]
+    snps.freq <- snps.freq[,-snps.discarded.pos]
+  }
+
   # Convert genotype matrix to numeric values for Matrix eQTL analaysis.
   suppressMessages(
     class(snps) <- "numeric"
@@ -240,6 +244,7 @@ leqtar_genotypes_to_frequencies <- function(snps, VERBOSE = F) {
   # Transfer the genotype matrix so that the columns 'align' with the gene expression matrix.
   snps.t <- t(snps)
   snps.genotype.t <- t(snps.genotype)
+  return( list(genotypeConverted=snps.t, genotypeNotConverted=snps.genotype.t))
 }
 
 # Change_allele_to_frequencies --------------

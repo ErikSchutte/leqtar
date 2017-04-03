@@ -4,17 +4,17 @@
 \alias{process_arguments}
 \title{Processes the user input arguments}
 \usage{
-process_arguments(genotypeFile, expressionFile, output_dir, covariateFile,
-  genoToFreq)
+process_arguments(genotypeFile, expressionFile, covariateFile, output_dir,
+  run_name, genoToFreq, forceRun)
 }
 \arguments{
 \item{genotypeFile}{the genotype file}
 
 \item{expressionFile}{the expression file}
 
-\item{output_dir}{the output dir, either default or user specified}
-
 \item{covariateFile}{the covariates, either zero or defined}
+
+\item{output_dir}{the output dir, either default or user specified}
 
 \item{genoToFreq}{a flag that converts genotypes AA AT TT to frequencies 0 1 2}
 }
