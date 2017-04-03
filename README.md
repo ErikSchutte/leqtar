@@ -16,7 +16,7 @@ Once the package is installed you can load it using `library(leqtar)`.
 
 ## 2. Data
 
-I expect the user to be ignorant of the required steps in acquireing genotype and phenotype data. Supposidly you know what you are doing,
+I expect the user to be ignorant of the required steps in acquiring genotype and phenotype data. Supposidly you know what you are doing,
 the phenotype data can be derived from aligning Fastq files with HISAT2 or STAR. Resulting BAM files can be counted with HTSeq or Feature counts.
 Raw phenotype data is now availble, but do note that you probably have to normalize this data first. You can either just do a simple log transformation or a Variance Stabilizing Transformation (VST).
 I would refer to `?DESeq2` for VST and the log transformation is in the basic R packages.
