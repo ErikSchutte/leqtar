@@ -22,8 +22,10 @@ Collate:
     'zzz.R'
     'leqtar.R'
     'leqtar_analysis.R'
+    'leqtar_create_genotype_boxplots.R'
     'leqtar_genotypes_to_frequencies.R'
     'leqtar_process_files.R'
+    'leqtar_results.R'
 Suggests: 
     testthat,
     rprojroot
