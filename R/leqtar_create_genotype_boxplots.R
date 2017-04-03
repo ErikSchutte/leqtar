@@ -295,6 +295,5 @@ leqtar_create_genotype_boxplots <- function(output_data, output_img) {
   #                             "_", eqtl$minor_major, "_", f.cov, ".pdf", sep=""), plot=last_plot(), device = "pdf")
   #   })
   # })
-  #
 
 }
