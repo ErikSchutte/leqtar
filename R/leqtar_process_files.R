@@ -271,7 +271,7 @@ leqtar_process_files <- function(arguments) {
 
     # Change the type of values in the data.frame
     expression_file_content <- as.matrix(expression_file_content)
-    class(expression_file_content) <- "double"
+    suppressWarnings( class(expression_file_content) <- "double" )
 
     # Check the number of Na's after conversion
     numberOfNAAfter <- sum( is.na(expression_file_content) )

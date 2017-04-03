@@ -6,6 +6,7 @@ Author: Erik Schutte
 Maintainer: Erik Schutte <schutte.erik@hotmail.com>
 Description: Performs Linear regression analysis on genotype and expression data to find the association between both.
     Also capable of searching trough it's own resulting output and creating genotype plots on demand.
+Depends: R (>= 2.10)
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
