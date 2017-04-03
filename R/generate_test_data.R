@@ -50,7 +50,7 @@ rownames(covariate_test_data) <- c("age", "gender")
 # head(covariate_test_data)
 
 # Save data.
-# save(genotype_test_data, file="~/git/leqtar/data/genotype_test_data.RData")
-# save(expression_test_data, file="~/git/leqtar/data/expression_test_data.RData")
-# save(covariate_test_data, file="~/git/leqtar/data/covariate_test_data.RData")
+save(genotype_test_data, file="~/git/leqtar/data/genotype_test_data.RData", compress = "xz")
+save(expression_test_data, file="~/git/leqtar/data/expression_test_data.RData", compress = "xz")
+save(covariate_test_data, file="~/git/leqtar/data/covariate_test_data.RData", compress = "xz")
 

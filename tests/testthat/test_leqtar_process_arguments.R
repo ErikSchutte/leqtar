@@ -6,32 +6,13 @@ context("Testing input arguments are valid arguments per leqtar's input standard
 # Set package root
 root <- is_testthat
 root_file <- root$make_fix_file()
-print(is_testthat$make_fix_file())
 
-# Set arguments
-# genotypeFile <- find_root_file( file.path("data", "genotype_test_data.RData", fsep = .Platform$file.sep), criterion = is_r_package)
-# expressionFile <- find_root_file( file.path("data", "expression_test_data.RData", fsep = .Platform$file.sep), criterion = is_r_package)
-# covariateFile <- find_root_file( file.path("data", "covariate_test_data.RData", fsep = .Platform$file.sep), criterion = is_r_package)
-
+# Set arguments.
 genotypeFile <- root_file("test_data", "genotype_test_data.RData")
 expressionFile <- root_file("test_data", "expression_test_data.RData")
 covariateFile <- root_file("test_data", "covariate_test_data.RData")
 output_dir <- file.path( getwd() )
 genoToFreq = F
-
-# # Set files manually ------------
-# genotypeFile = file.path("data", "genotype_test_data.RData", fsep=.Platform$file.sep)
-# expressionFile = file.path("data", "expression_test_data.RData", fsep=.Platform$file.sep)
-# covariateFile = file.path("data", "covariate_test_data.RData", fsep=.Platform$file.sep)
-
-
-#
-# # Set files unittest -------------
-# genotypeFile = file.path("..", "..", "data", "genotype_test_data.RData", fsep=.Platform$file.sep)
-# expressionFile = file.path("..", "..", "data", "expression_test_data.RData", fsep=.Platform$file.sep)
-# covariateFile = file.path("..", "..", "data", "covariate_test_data.RData", fsep=.Platform$file.sep)
-# output_dir = file.path(getwd())
-# genoToFreq = F
 
 # Test case 1 -----------------------------
 test_that("arguments are correctly processed when parsing a genotypeFile and an expressionFile..", {
