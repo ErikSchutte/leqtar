@@ -24,14 +24,16 @@ cat("Building package", build_version, "on", build_time, "\n")
 #'
 #' @export
 #' @param genotypeFile [REQUIRED] A Genotype file. SNP names are expected as colnames and sample names as rownames.
-#' @param expressionFile [REQUIRED] A Phenotype file. Sample names are expected as colnames and stimulations/genes as rownames.
+#' @param phenotypeFile [REQUIRED] A Phenotype file. Sample names are expected as colnames and stimulations/genes as rownames.
 #' @param run_name [REQUIRED] A name that will be used for the current 'run'.
+#' @param genotypePositionFile [OPTIONAL] A file containing the positions for each SNP. The colnames are 'snp', 'chr' and	'pos'.
+#' @param phenotypePositionFile [OPTIONAl] A file containing the positions for each gene.
 #' @param covariateFile [OPTIONAL] A Covariate file containing covariates. Sample names are expected as colnames and covariates as rownames.
 #' @param output_dir [OPTIONAL] A relative path from your current working directory or an absolute path to a specific directory. The results will be stored in this location.
 #' @param genoToFreq [OPTIONAL] Turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis.
 #' @param forceRun [OPTIONAL] Normally Leqtar perserves data, by turning this to `TRUE` runs that already exist will be overwritten.
 #' @note For a complete view of how to run and use Leqtar, please visit https://github.com/ErikSchutte/leqtar.
-leqtar <- function(genotypeFile = NULL, expressionFile = NULL, covariateFile = NULL, output_dir = NULL, run_name = NULL, genoToFreq = F, forceRun = F) {
+leqtar <- function(genotypeFile = NULL, phenotypeFile = NULL, covariateFile = NULL, output_dir = NULL, run_name = NULL, genoToFreq = F, forceRun = F) {
 
   message("[INFO] leqtar stands for Linear eQTL analysis in R",
           "\n[INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues",
@@ -39,7 +41,7 @@ leqtar <- function(genotypeFile = NULL, expressionFile = NULL, covariateFile = N
           "\n[INFO] This package was build on ", build_time)
 
   # Processes arguments, returns a list with all arguments.
-  arguments <- process_arguments(genotypeFile, expressionFile, covariateFile, output_dir, run_name, genoToFreq, forceRun)
+  arguments <- process_arguments(genotypeFile, phenotypeFile, covariateFile, output_dir, run_name, genoToFreq, forceRun)
 
   # Parse arguments to leqtar_analysis.
   dataFiles <- leqtar_process_files(arguments)
@@ -56,13 +58,13 @@ leqtar <- function(genotypeFile = NULL, expressionFile = NULL, covariateFile = N
 #' Processes the user input arguments
 #'
 #' @param genotypeFile the genotype file
-#' @param expressionFile the expression file
+#' @param phenotypeFile the expression file
 #' @param output_dir the output dir, either default or user specified
 #' @param covariateFile the covariates, either zero or defined
 #' @param genoToFreq a flag that converts genotypes AA AT TT to frequencies 0 1 2
 #' @return arguments object, containing all processed arguments
 #' @importFrom "utils" "modifyList"
-process_arguments <- function(genotypeFile, expressionFile, covariateFile, output_dir, run_name, genoToFreq, forceRun) {
+process_arguments <- function(genotypeFile, phenotypeFile, covariateFile, output_dir, run_name, genoToFreq, forceRun) {
 
   message("[INFO] ----------#----------")
   # Bind the arguments variable.
@@ -83,15 +85,15 @@ process_arguments <- function(genotypeFile, expressionFile, covariateFile, outpu
   }
 
   # Check if the expression file is provided/exists.
-  if ( is.null(expressionFile) ) {
+  if ( is.null(phenotypeFile) ) {
     stop("[STOP] No expression file provided, provide a genotype file..")
-  } else if ( is.matrix(expressionFile) || is.data.frame(expressionFile) ) {
-    arguments <- modifyList(arguments, list(expression = expressionFile) )
+  } else if ( is.matrix(phenotypeFile) || is.data.frame(phenotypeFile) ) {
+    arguments <- modifyList(arguments, list(expression = phenotypeFile) )
   } else {
-    if ( file.exists(expressionFile) ) {
-      arguments <- modifyList(arguments, list(expression = expressionFile) )
+    if ( file.exists(phenotypeFile) ) {
+      arguments <- modifyList(arguments, list(expression = phenotypeFile) )
     } else {
-      stop("[STOP] The expression file you provided: ", as.character(expressionFile), " does not exist..")
+      stop("[STOP] The expression file you provided: ", as.character(phenotypeFile), " does not exist..")
     }
   }
 

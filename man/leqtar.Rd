@@ -4,13 +4,13 @@
 \alias{leqtar}
 \title{Leqtar}
 \usage{
-leqtar(genotypeFile = NULL, expressionFile = NULL, covariateFile = NULL,
+leqtar(genotypeFile = NULL, phenotypeFile = NULL, covariateFile = NULL,
   output_dir = NULL, run_name = NULL, genoToFreq = F, forceRun = F)
 }
 \arguments{
 \item{genotypeFile}{[REQUIRED] A Genotype file. SNP names are expected as colnames and sample names as rownames.}
 
-\item{expressionFile}{[REQUIRED] A Phenotype file. Sample names are expected as colnames and stimulations/genes as rownames.}
+\item{phenotypeFile}{[REQUIRED] A Phenotype file. Sample names are expected as colnames and stimulations/genes as rownames.}
 
 \item{covariateFile}{[OPTIONAL] A Covariate file containing covariates. Sample names are expected as colnames and covariates as rownames.}
 
@@ -21,6 +21,10 @@ leqtar(genotypeFile = NULL, expressionFile = NULL, covariateFile = NULL,
 \item{genoToFreq}{[OPTIONAL] Turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis.}
 
 \item{forceRun}{[OPTIONAL] Normally Leqtar perserves data, by turning this to `TRUE` runs that already exist will be overwritten.}
+
+\item{genotypePositionFile}{[OPTIONAL] A file containing the positions for each SNP. The colnames are 'snp', 'chr' and    'pos'.}
+
+\item{phenotypePositionFile}{[OPTIONAl] A file containing the positions for each gene.}
 }
 \description{
 Leqtar uses a linear regression models for eQTL analysis. It has a multitude of options, play around with the test data that is availble to get a good idea of your optimal settings.

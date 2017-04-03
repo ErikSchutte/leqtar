@@ -4,13 +4,13 @@
 \alias{process_arguments}
 \title{Processes the user input arguments}
 \usage{
-process_arguments(genotypeFile, expressionFile, covariateFile, output_dir,
+process_arguments(genotypeFile, phenotypeFile, covariateFile, output_dir,
   run_name, genoToFreq, forceRun)
 }
 \arguments{
 \item{genotypeFile}{the genotype file}
 
-\item{expressionFile}{the expression file}
+\item{phenotypeFile}{the expression file}
 
 \item{covariateFile}{the covariates, either zero or defined}
 
