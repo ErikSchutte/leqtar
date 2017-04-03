@@ -75,7 +75,9 @@ leqtar_analysis <- function(dataFiles, arguments) {
 
   # Analysis -----------------------
   message("[INFO] Running Linear Analysis..")
-  suppressMessages(
+
+  # Supress matrix eqtl output
+  sink("/dev/null")
   me = Matrix_eQTL_engine(
     snps = snps,
     gene = expr,
@@ -87,9 +89,8 @@ leqtar_analysis <- function(dataFiles, arguments) {
     verbose = TRUE,
     pvalue.hist = TRUE,
     min.pv.by.genesnp = FALSE,
-    noFDRsaveMemory = FALSE);
-  )
-
+    noFDRsaveMemory = FALSE)
+  sink()
   # Remove temp file.
   unlink(output_file_name)
 

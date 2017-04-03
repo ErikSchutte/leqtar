@@ -12,5 +12,5 @@ leqtar_create_genotype_boxplots(output_data, output_img)
 \item{output_img}{the folder whre genotype boxplots should go. Note it contains subfolders for manhattan plots and for genotype boxplots.}
 }
 \description{
-Using the output from leqtar_analysis this function will try to create genotype boxplots for the top x assoactions found by Matrix eQTL.
+Using the output from leqtar_analysis this function will try to create genotype boxplots for the top x associations found by Matrix eQTL.
 }
