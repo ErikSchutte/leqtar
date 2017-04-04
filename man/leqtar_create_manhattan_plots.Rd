@@ -6,9 +6,6 @@
 \usage{
 leqtar_create_manhattan_plots()
 }
-\arguments{
-\item{somePath}{change this later.}
-}
 \description{
 Creates manhattan plots from the data file produced by leqtar_analysis.
 }

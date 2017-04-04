@@ -6,9 +6,6 @@
 \usage{
 leqtar_create_tables()
 }
-\arguments{
-\item{somePath}{change this later.}
-}
 \description{
 Creates result tables from the data file produced by leqtar_analysis.
 }
