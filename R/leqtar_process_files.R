@@ -1,7 +1,7 @@
 # Function    : leqtar_process_files
 # Input       : processed arguments
 # Output      : Data objects
-# Note to self: 1 genotype, 2 expression, 3 covariates, 4 output, 5 valid
+# Note to self: 1 genotype, 2 phenotype, 3 covariates, 4 output, 5 valid
 
 # leqtar_process_files -----------------------------------------------------------
 #' leqtar_process_files function
@@ -12,9 +12,10 @@
 #'
 #' @param arguments path to file supplied by user.
 #' @return content of data files.
-#' @import "gdata"
-#' @import "stringr"
-#' @import "gtools"
+#' @importFrom "gdata" "read.xls"
+#' @importFrom "stringr" "str_split"
+#' @importFrom "gtools" "mixedorder"
+#' @importFrom "gtools" "mixedsort"
 #' @importFrom "utils" "read.table"
 #' @importFrom "utils" "read.csv"
 #' @note Hard requirement, no dots should be present in the file name, except for the extension.
@@ -22,120 +23,76 @@ leqtar_process_files <- function(arguments) {
 
   # Check for data or file path --------------
   # Set flags
-  genotypeIsFilePath <- TRUE
-  expressionIsFilePath <- TRUE
-  if ( !is.null(arguments$covariates) ) {
-    covariateIsFilePath <- TRUE
-  }
+  message("[INFO] Processing Files..")
+  message("[INFO] ----------#----------")
+  message("[INFO] Reading files..")
+  # Check paramters for file's or objects --------------------
+  phenotype_file_content <- check_object_or_file(arguments$phenotype, arguments$phenotypeData, "Phenotype")
+  phenotype_position_content <- check_object_or_file(arguments$phenotypePosition, arguments$phenotypePositionData, "Phenotype positions")
 
-  if ( is.matrix(arguments$genotype) | is.data.frame(arguments$genotype) ) {
-    message("[INFO] Genotype file is an object, not file path.")
-    genotypeIsFilePath <- FALSE
-  }
+  genotype_file_content <- check_object_or_file(arguments$genotype, arguments$genotypeData, "Genotype")
+  genotype_position_content <- check_object_or_file(arguments$genotypePosition, arguments$genotypePositionData, "Genotype positions")
 
-  if ( is.matrix(arguments$expression) | is.data.frame(arguments$expression) ) {
-    message("[INFO] Expression file is an object, not file path.")
-    expressionIsFilePath <- FALSE
-  }
+  covariates_file_content <- check_object_or_file(arguments$covariates, arguments$covariatesData, "Covariates")
 
-  if ( !is.null(arguments$covariates) ) {
-    if ( is.matrix(arguments$covariates) | is.data.frame(arguments$covariates) ) {
-      message("[INFO] Covariates file is an object, not file path.")
-      covariateIsFilePath <- FALSE
-    }
-  }
-
-  # Depending on path or object read or set content -------
-  if ( all(genotypeIsFilePath, expressionIsFilePath) ) {
-
-    # Extract file extensions --------------------
-    message("[INFO] ----------#----------")
-    message("[INFO] Determine extensions..")
-    genotype_file_extension <- unlist(str_split(arguments$genotype, "\\."))[2]
-    expression_file_extension <- unlist(str_split(arguments$expression, "\\."))[2]
-
-    #Visibly bind 'covariates_file_extension'
-    covariates_file_extension <- NULL
-    if ( !is.null(arguments$covariates) ) {
-      if ( covariateIsFilePath ) {
-        covariates_file_extension <- unlist(str_split(arguments$covariates, "\\."))[2]
-      }
-    }
-    message("[INFO] File extensions OK..")
-
-    # Determine read methods.
-    message("[INFO] ----------#----------")
-    message("[INFO] Reading files..")
-    # genotype --------------------
-    genotype_file_content <- read_files(genotype_file_extension, arguments$genotype)
-
-    # expression -------------------
-    expression_file_content <- read_files(expression_file_extension, arguments$expression)
-
-    # covariates -------------------
-    #Visibly bind 'covariate_file_content'
-    covariates_file_content <- NULL
-    if ( !is.null(arguments$covariates) ) {
-      if ( covariateIsFilePath ) {
-        covariates_file_content <- read_files(covariates_file_extension, arguments$covariates)
-      }
-
-    }
-  } else {
-    genotype_file_content <- arguments$genotype
-    expression_file_content <- arguments$expression
-    if ( !is.null(arguments$covariates) ) {
-      covariates_file_content <- arguments$covariates
-    }
-  }
-  message("[INFO] Files OK..")
+  message("[INFO] Reading files OK..")
 
   # Check dimensions -------------------
   message("[INFO] ----------#----------")
   message("[INFO] Checking dimensions..")
   dim_genotype <- dim(genotype_file_content)
-  dim_expression <- dim(expression_file_content)
+  dim_phenotype <- dim(phenotype_file_content)
+  warnings <- 0
   if ( !is.null(arguments$covariates) ) {
     dim_covariates <- dim(covariates_file_content)
 
-    if (dim_genotype[1] != dim_covariates[2]) {
+    if (dim_genotype[2] != dim_covariates[2]) {
       message("[WARN] The number of samples in your genotype and covariate files do not match..",
               "\n\\___   leqtar will try to correct for this sample indifference..")
-    } else if (dim_genotype[1] != dim_expression[2]) {
-      message("[WARN] The number of samples in your genotype and expression files do not match..",
+      warnings <- warnings + 1
+    } else if (dim_genotype[2] != dim_phenotype[2]) {
+      message("[WARN] The number of samples in your genotype and phenotype files do not match..",
               "\n\\___   leqtar will try to correct for this sample indifference..")
-    } else if (dim_covariates[2] != dim_expression[2]) {
-      message("[WARN] The number of samples in your covariates and expression files do not match..",
+      warnings <- warnings + 1
+    } else if (dim_covariates[2] != dim_phenotype[2]) {
+      message("[WARN] The number of samples in your covariates and phenotype files do not match..",
               "\n\\___   leqtar will try to correct for this sample indifference..")
+      warnings <- warnings + 1
     }
   } else {
-    if (dim_genotype[1] != dim_expression[2]) {
-      message("[WARN] The number of samples in your genotype and expression files do not match..",
+    if (dim_genotype[2] != dim_phenotype[2]) {
+      message("[WARN] The number of samples in your genotype and phenotype files do not match..",
               "\n\\___   leqtar will try to correct for this sample indifference..")
+      warnings <- warnings + 1
     }
   }
-  message("[INFO] Dimensions OK..")
+  if ( warnings > 0 ) {
+    message("[INFO] Checking dimensions OK with: ", as.character(warnings), " warning(s) ..")
+  } else {
+    message("[INFO] Checking dimensions OK..")
+  }
+
 
   # Changing genotypes to frequencies -------------------------
   message("[INFO] ----------#----------")
   message("[INFO] Checking genotype data..")
 
   if ( class( as.vector(genotype_file_content[1,1]) ) == "character" && arguments$genoToFreq == F ) {
-    stop("[STOP] Detected characters in genotype data. If you want leqtar to change them to\n\\___   frequencies, set argument 'genoToFreq=T'..")
+    stop("[STOP] Detected characters in genotype data. If you want leqtar to change them to\n  \\___   frequencies, set argument 'genoToFreq=T'..")
 
   } else if ( class( as.vector(genotype_file_content[1,1]) ) == "character" && arguments$genoToFreq == T ) {
-    message("[INFO] Detected characters in genotype data. Option set to changed genotypes to frequencies..")
+    message("[INFO] Genotype conversion: ", as.character(arguments$genoToFreq), ", conversing genotypes..")
     sub_arguments <- leqtar_genotypes_to_frequencies(genotype_file_content)
     genotype_file_content <- sub_arguments$genotypeConverted
     genotype_file_content_unconverted <- sub_arguments$genotypeNotConverted
 
   } else if ( class( as.vector(genotype_file_content[1,1]) )  == "integer" && arguments$genoToFreq == F ||
               class( as.vector(genotype_file_content[1,1]) )  == "numeric" && arguments$genoToFreq == F ) {
-    message("[INFO] Detected numeric/integers as field values for genotype data, moving on..")
+    message("[INFO] Genotype conversion: ", as.character(arguments$genoToFreq), ", but genotypes already conversed..")
 
   } else if ( class( as.vector(genotype_file_content[1,1]) )  == "integer" && arguments$genoToFreq == T ||
               class( as.vector(genotype_file_content[1,1]) )  == "numeric" && arguments$genoToFreq == T ) {
-    message("[INFO] Genotype data is already numeric, moving on..")
+    message("[INFO] Genotype conversion: ", as.character(arguments$genoToFreq), ", but genotypes already conversed..")
 
   } else if ( class( as.vector(genotype_file_content[1,1]) ) == "factor" ) {
     stop("[STOP] Factor variables are not yet supported..")
@@ -144,7 +101,7 @@ leqtar_process_files <- function(arguments) {
     stop("[STOP] Unexpected error, your genotype file is probably incorrect. If this is a persistent error,
          report the issue in the github issue tracker..")
   }
-  message("[INFO] Genotype data OK..")
+  message("[INFO] Checking genotype data OK..")
 
 
   # Check column name order ---------------------------------
@@ -154,141 +111,183 @@ leqtar_process_files <- function(arguments) {
   # Bind 'covariates_samples'
   covariates_samples <- NULL
   genotype_samples <- colnames(genotype_file_content)
-  expression_samples <- colnames(expression_file_content)
+  phenotype_samples <- colnames(phenotype_file_content)
   if ( !is.null(arguments$covariates) ) {
     covariates_samples <- colnames(covariates_file_content)
   }
 
   if ( !is.null(arguments$covariates) ) {
 
-    if ( length(genotype_samples) == length(expression_samples) &&
+    if ( length(genotype_samples) == length(phenotype_samples) &&
          length(genotype_samples) == length(covariates_samples) ) {
-      if ( all(genotype_samples == expression_samples) && all(genotype_samples == covariates_samples) ) {
-        message("[INFO] Sample names OK..")
+      if ( all(genotype_samples == phenotype_samples) && all(genotype_samples == covariates_samples) ) {
+        message("[INFO] Checking sample names OK..")
       }
     }
-    if ( length( intersect(genotype_samples, expression_samples) ) == length(genotype_samples) &&
+    if ( length( intersect(genotype_samples, phenotype_samples) ) == length(genotype_samples) &&
          length( intersect(genotype_samples, covariates_samples) ) == length(genotype_samples) ) {
-      message("[WARN] Sample names OK, but are in the wrong order..\n[INFO] Re-ordering samples..")
+      message("[WARN] Sample names OK, but are in the wrong order..\n\\___   Re-ordering samples..")
       stop("[STOP] This is not yet implemented!")
     } else {
       message("[WARN] Some samples do not co-exists in all files..\n\\___   Re-ordering samples and trying to run anyway..")
 
       # Index the different samples for the covariates
-      covariates_in_expression <- covariates_samples[which(covariates_samples %in% expression_samples)]
+      covariates_in_phenotype <- covariates_samples[which(covariates_samples %in% phenotype_samples)]
       covariates_in_genotype <- covariates_samples[which(covariates_samples %in% genotype_samples)]
 
       # Index the different samples for the covariates
       genotype_in_covariates <- genotype_samples[which(genotype_samples %in% covariates_samples)]
-      genotype_in_expression <- genotype_samples[which(genotype_samples %in% expression_samples)]
+      genotype_in_phenotype <- genotype_samples[which(genotype_samples %in% phenotype_samples)]
 
       # Index the different samples for the covariates
-      expression_in_genotype <- expression_samples[which(expression_samples %in% genotype_samples)]
-      expression_in_covariates <- expression_samples[which(expression_samples %in% covariates_samples)]
+      phenotype_in_genotype <- phenotype_samples[which(phenotype_samples %in% genotype_samples)]
+      phenotype_in_covariates <- phenotype_samples[which(phenotype_samples %in% covariates_samples)]
 
       # Detect differences between samples.
-      if ( length(covariates_samples) != length(covariates_in_expression) ) {
-        message("[WARN] Detected different amount of samples between covariates file and the expression file..")
+      if ( length(covariates_samples) != length(covariates_in_phenotype) ) {
+        message("[WARN] Detected different amount of samples between covariates file and the phenotype file..")
       } else if ( length(covariates_samples) != length(covariates_in_genotype) ) {
         message("[WARN] Detected different amount of samples between covariates file and the genotype file..")
       }
       if ( length(genotype_samples) != length(genotype_in_covariates) ) {
         message("[WARN] Detected different amount of samples between genotype file and the covariate file..")
-      } else if ( length(genotype_samples) != length(genotype_in_expression) ) {
-        message("[WARN] Detected different amount of samples between genotype file and the expression file..")
+      } else if ( length(genotype_samples) != length(genotype_in_phenotype) ) {
+        message("[WARN] Detected different amount of samples between genotype file and the phenotype file..")
       }
-      if ( length(expression_samples) != length(expression_in_genotype) ) {
-        message("[WARN] Detected different amount of samples between expression file and the genotype file..")
-      } else if ( length(expression_samples) != length(expression_in_covariates) ) {
-        message("[WARN] Detected different amount of samples between expression file and the covariate file..")
+      if ( length(phenotype_samples) != length(phenotype_in_genotype) ) {
+        message("[WARN] Detected different amount of samples between phenotype file and the genotype file..")
+      } else if ( length(phenotype_samples) != length(phenotype_in_covariates) ) {
+        message("[WARN] Detected different amount of samples between phenotype file and the covariate file..")
       }
 
       # Define coexisting samples.
-      coexistingSamples <- intersect( intersect(covariates_samples, genotype_samples), expression_samples)
+      coexistingSamples <- intersect( intersect(covariates_samples, genotype_samples), phenotype_samples)
 
       # Create subsets.
       genotype_file_content <- genotype_file_content[,coexistingSamples, drop=F]
-      expression_file_content <- expression_file_content[,coexistingSamples, drop=F]
+      phenotype_file_content <- phenotype_file_content[,coexistingSamples, drop=F]
       covariates_file_content <- covariates_file_content[,coexistingSamples, drop=F]
 
       # Re-order data.
       genotype_file_content <- genotype_file_content[,mixedsort (colnames(genotype_file_content) ), drop=F]
-      expression_file_content <- expression_file_content[,mixedsort( colnames(expression_file_content) ), drop=F]
+      phenotype_file_content <- phenotype_file_content[,mixedsort( colnames(phenotype_file_content) ), drop=F]
       covariates_file_content <- covariates_file_content[,mixedsort( colnames(covariates_file_content) ), drop=F]
 
       # Output changes.
-      message("[WARN] Initial number of expression samples: ", length(expression_samples),
+      message("[WARN] Initial number of phenotype samples: ", length(phenotype_samples),
               "\n\\___   Initial number of genotype samples: ", length(genotype_samples),
               "\n\\___   Initial number of covariate samples: ", length(covariates_samples),
-              "\n\\___   Excluded: ", as.character( length(expression_samples) - length( colnames(expression_file_content) ) ),
-              " samples from the expression data.",
+              "\n\\___   Excluded: ", as.character( length(phenotype_samples) - length( colnames(phenotype_file_content) ) ),
+              " samples from the phenotype data.",
               "\n\\___   Exlcuded: ", as.character( length(genotype_samples) - length( colnames(genotype_file_content) ) ),
               " samples from the genotype data.",
               "\n\\___   Excluded: ", as.character( length(covariates_samples) - length( colnames(covariates_file_content) ) ),
               " samples from the covariates data.")
     }
   } else {
-    if ( length(genotype_samples) == length(expression_samples) ) {
-      if ( all(genotype_samples == expression_samples) ) {
-        message("[INFO] Sample names OK..")
-      } else if ( length( intersect(genotype_samples, expression_samples) ) == length( unique(genotype_samples) ) ) {
+    if ( length(genotype_samples) == length(phenotype_samples) ) {
+      if ( all(genotype_samples == phenotype_samples) ) {
+        message("[INFO] Checking sample names OK..")
+      } else if ( length( intersect(genotype_samples, phenotype_samples) ) == length( unique(genotype_samples) ) ) {
         message("[WARN] Sample names OK, but are in the wrong order..\n\\___   Re-ordering samples..")
         stop("[STOP] This is not yet implemented!")
-        }
-      } else {
-        message("[WARN] Some samples do not co-exists in both files..\n\\___   Re-ordering samples and trying to run anyway..")
-
-        # Define coexisting samples.
-        coexistingSamples <- intersect( genotype_samples, expression_samples)
-
-        # Set subsets of data.
-        expression_file_content <- expression_file_content[,coexistingSamples, drop=F]
-        genotype_file_content <- genotype_file_content[,coexistingSamples, drop=F]
-
-        # Re-order data.
-        expression_file_content <- expression_file_content[,mixedsort( colnames(expression_file_content) ), drop=F]
-        genotype_file_content <- genotype_file_content[,mixedsort( colnames(genotype_file_content) ), drop=F]
-
-        # Output changes.
-        message("[WARN] Initial number of expression samples: ", length(expression_samples),
-                "\n\\___   Initial number of genotype samples: ", length(genotype_samples),
-                "\n\\___   Excluded: ", as.character( length(expression_samples) - length( colnames(expression_file_content) ) ),
-                " samples from the expression data.",
-                "\n\\___   Exlcuded: ", as.character( length(genotype_samples) - length( colnames(genotype_file_content) ) ),
-                " samples from the genotype data.",
-                "\n\\___   New number of expression samples: ", length( colnames(expression_file_content) ),
-                "\n\\___   New number of genotype samples: ", length ( colnames(genotype_file_content) ) )
       }
+    } else {
+      message("[WARN] Some samples do not co-exists in both files..\n\\___   Re-ordering samples and trying to run anyway..")
+
+      # Define coexisting samples.
+      coexistingSamples <- intersect( genotype_samples, phenotype_samples)
+
+      # Set subsets of data.
+      phenotype_file_content <- phenotype_file_content[,coexistingSamples, drop=F]
+      genotype_file_content <- genotype_file_content[,coexistingSamples, drop=F]
+
+      # Re-order data.
+      phenotype_file_content <- phenotype_file_content[,mixedsort( colnames(phenotype_file_content) ), drop=F]
+      genotype_file_content <- genotype_file_content[,mixedsort( colnames(genotype_file_content) ), drop=F]
+
+      # Output changes.
+      message("[WARN] Initial number of phenotype samples: ", length(phenotype_samples),
+              "\n\\___   Initial number of genotype samples: ", length(genotype_samples),
+              "\n\\___   Excluded: ", as.character( length(phenotype_samples) - length( colnames(phenotype_file_content) ) ),
+              " samples from the phenotype data.",
+              "\n\\___   Exlcuded: ", as.character( length(genotype_samples) - length( colnames(genotype_file_content) ) ),
+              " samples from the genotype data.",
+              "\n\\___   New number of phenotype samples: ", length( colnames(phenotype_file_content) ),
+              "\n\\___   New number of genotype samples: ", length ( colnames(genotype_file_content) ) )
     }
+  }
   message("[INFO] ----------#----------")
 
-  # Checking Expression data -----------------
-  message("[INFO] Checking expression data..")
-  if ( class( as.vector(expression_file_content[1,1]) ) == "character" ) {
-    message("[WARN] Detected characters in expression data.\n\\___   Conversing to integers/numeric values..")
+  # Checking phenotype data -----------------
+  message("[INFO] Checking phenotype data..")
+  if ( class( as.vector(phenotype_file_content[1,1]) ) == "character" ) {
+    message("[WARN] Detected characters in phenotype data.\n\\___   Conversing to integers/numeric values..")
 
     # Save the number of NA's before conversion.
-    numberOfNABefore <- sum( is.na(expression_file_content) )
+    numberOfNABefore <- sum( is.na(phenotype_file_content) )
 
     # Change the type of values in the data.frame
-    expression_file_content <- as.matrix(expression_file_content)
-    suppressWarnings( class(expression_file_content) <- "double" )
+    phenotype_file_content <- as.matrix(phenotype_file_content)
+    suppressWarnings( class(phenotype_file_content) <- "double" )
 
     # Check the number of Na's after conversion
-    numberOfNAAfter <- sum( is.na(expression_file_content) )
+    numberOfNAAfter <- sum( is.na(phenotype_file_content) )
 
-    message("\\___   Number of NA's in expression data before conversion: ", numberOfNABefore,
-            "\n\\___   Number of NA's in expression data after conversion: ", numberOfNAAfter)
+    message("\\___   Number of NA's in phenotype data before conversion: ", numberOfNABefore,
+            "\n\\___   Number of NA's in phenotype data after conversion: ", numberOfNAAfter)
 
   }
-  message("[INFO] Expression data OK..")
+  message("[INFO] Checking phenotype data OK..")
   message("[INFO] ----------#----------")
+  message("[INFO] Processing files OK..")
+  message("[INFO] ----------#----------")
+
+  # Store content in global argument object.
+  arguments$genotypeData <- genotype_file_content
+  arguments$phenotypeData <- phenotype_file_content
+
   if ( !is.null(arguments$covariates) ) {
-    return( list(genotype=genotype_file_content, expression=expression_file_content, covariates=covariates_file_content) )
-  } else {
-    return( list(genotype=genotype_file_content, expression=expression_file_content) )
+    arguments$covariatesData <- covariates_file_content
   }
 
+  return( arguments )
+}
+# check_object_or_file -------------------
+#' check_object_or_file
+#'
+#' Checks wether the given parameter is a file path or an R object. Thus determines wether to read it or not.
+#'
+#' @param path_argument the argument that should contain the path.
+#' @param data_argument the argument that contains the object.
+#' @param name_argument variable name to specify genotype phenotype covariaties or w/e in the messages.
+#' @return If the path_argument is indeed given return the file content, else return the object.
+check_object_or_file <- function(path_argument, data_argument, name_argument) {
+  # Check if Object
+  if ( is.null(path_argument) ) {
+    if ( is.matrix(data_argument) | is.data.frame(data_argument) ) {
+      message("[INFO] ", name_argument, " argument: Object..")
+      file_content <- data_argument
+      return( file_content )
+    } else {
+      stop("[STOP] ", name_argument, " argument is not a matrix or a data.frame.. ")
+    }
+    # Check if File
+  } else {
+
+    if ( is.null(data_argument) ) {
+      if ( is.character(path_argument) ) {
+        message("[INFO] ", name_argument, " argument: File path..")
+        extension <- unlist(str_split(path_argument, "\\."))[2]
+        file_content <- read_files(extension, path_argument)
+        return( file_content )
+      } else {
+        stop("[STOP] ", name_argument, " argument has to be a file path.")
+      }
+    } else {
+      stop("[STOP] Dev note: ", name_argument, " data and Genotype cannot both be assigned.")
+    }
+  }
 }
 
 # read_files function ---------------------------------------------

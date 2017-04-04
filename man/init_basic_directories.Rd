@@ -4,19 +4,13 @@
 \alias{init_basic_directories}
 \title{Creates initial file structure for leqtar output.}
 \usage{
-init_basic_directories(output_dir, run_name, arguments, forceRun)
+init_basic_directories(arguments)
 }
 \arguments{
-\item{output_dir}{the output_dir variable set by the user.}
-
-\item{run_name}{variable name for current run.}
-
 \item{arguments}{the empty/partially empty arguments variable used for processing.}
 }
 \value{
-output_dir contains the output path for the current run
-
-arguments modified arguments list.
+arguments the partially empty arguments variables used for processing.
 }
 \description{
 Creates initial file structure for leqtar output.
