@@ -9,7 +9,7 @@ bugs or problems that you might spot, please report them in the issue tracker.
 In order to install leqtar you need `devtools`. If not already installed go ahead and enter `install.packages("devtools")`
 in your RStudio terminal or in R using the terminal, else load using `library(devtools)`.
 
-After `devtools` is installed and loaded using the library function enter `install_github("ErikSchutte/leqtar")`.
+After `devtools` is installed and loaded using the library function enter `install_github("ErikSchutte/leqtar")`. This defaults to the master branch. If you want the latest update from the dev branch you have to specify `install_github("ErikSchutte/leqtar", ref = "dev")`.
 For more information about `install_github` please use `?install_github` in the terminal.
 
 Once the package is installed you can load it using `library(leqtar)`.
@@ -42,7 +42,7 @@ To do this we simply just call the following little script.
 ```
 library(leqtar)
 
-leqtar(genotypeFile = genotype_test_data, expressionFile = expression_test_data, covariateFile = covariate_test_data,
+leqtar(genotypeFile = genotype_test_data, phenotypeFile = phenotype_test_data, covariateFile = covariate_test_data,
        run_name = "test01")
 ```
 
