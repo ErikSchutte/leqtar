@@ -42,7 +42,7 @@ To do this we simply just call the following little script.
 ```
 library(leqtar)
 
-leqtar(genotypeFile = genotype_test_data, expressionFile = expression_test_data, covariateFile = covariate_test_data,
+leqtar(genotypeFile = genotype_test_data, phenotypeFile = phenotype_test_data, covariateFile = covariate_test_data,
        run_name = "test01")
 ```
 
