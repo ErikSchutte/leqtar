@@ -24,72 +24,17 @@ leqtar_process_files <- function(arguments) {
   # Check for data or file path --------------
   # Set flags
   message("[INFO] Processing Files..")
-  genotypeIsFilePath <- TRUE
-  phenotypeIsFilePath <- TRUE
-  if ( !is.null(arguments$covariates) ) {
-    covariateIsFilePath <- TRUE
-  }
+  message("[INFO] ----------#----------")
+  message("[INFO] Reading files..")
+  # Check paramters for file's or objects --------------------
+  phenotype_file_content <- check_object_or_file(arguments$phenotype, arguments$phenotypeData, "Phenotype")
+  phenotype_position_content <- check_object_or_file(arguments$phenotypePosition, arguments$phenotypePositionData, "Phenotype positions")
 
-  if ( is.matrix(arguments$genotype) | is.data.frame(arguments$genotype) ) {
-    message("[INFO] Genotype file is an object, not file path.")
-    genotypeIsFilePath <- FALSE
-  }
+  genotype_file_content <- check_object_or_file(arguments$genotype, arguments$genotypeData, "Genotype")
+  genotype_position_content <- check_object_or_file(arguments$genotypePosition, arguments$genotypePositionData, "Genotype positions")
 
-  if ( is.matrix(arguments$phenotype) | is.data.frame(arguments$phenotype) ) {
-    message("[INFO] phenotype file is an object, not file path.")
-    phenotypeIsFilePath <- FALSE
-  }
+  covariates_file_content <- check_object_or_file(arguments$covariates, arguments$covariatesData, "Covariates")
 
-  if ( !is.null(arguments$covariates) ) {
-    if ( is.matrix(arguments$covariates) | is.data.frame(arguments$covariates) ) {
-      message("[INFO] Covariates file is an object, not file path.")
-      covariateIsFilePath <- FALSE
-    }
-  }
-
-  # Depending on path or object read or set content -------
-  if ( all(genotypeIsFilePath, phenotypeIsFilePath) ) {
-
-    # Extract file extensions --------------------
-    message("[INFO] ----------#----------")
-    message("[INFO] Checking extensions..")
-    genotype_file_extension <- unlist(str_split(arguments$genotype, "\\."))[2]
-    phenotype_file_extension <- unlist(str_split(arguments$phenotype, "\\."))[2]
-
-    #Visibly bind 'covariates_file_extension'
-    covariates_file_extension <- NULL
-    if ( !is.null(arguments$covariates) ) {
-      if ( covariateIsFilePath ) {
-        covariates_file_extension <- unlist(str_split(arguments$covariates, "\\."))[2]
-      }
-    }
-    message("[INFO] Checking extensions OK..")
-
-    # Determine read methods.
-    message("[INFO] ----------#----------")
-    message("[INFO] Reading files..")
-    # genotype --------------------
-    genotype_file_content <- read_files(genotype_file_extension, arguments$genotype)
-
-    # phenotype -------------------
-    phenotype_file_content <- read_files(phenotype_file_extension, arguments$phenotype)
-
-    # covariates -------------------
-    #Visibly bind 'covariate_file_content'
-    covariates_file_content <- NULL
-    if ( !is.null(arguments$covariates) ) {
-      if ( covariateIsFilePath ) {
-        covariates_file_content <- read_files(covariates_file_extension, arguments$covariates)
-      }
-
-    }
-  } else {
-    genotype_file_content <- arguments$genotype
-    phenotype_file_content <- arguments$phenotype
-    if ( !is.null(arguments$covariates) ) {
-      covariates_file_content <- arguments$covariates
-    }
-  }
   message("[INFO] Reading files OK..")
 
   # Check dimensions -------------------
@@ -101,11 +46,11 @@ leqtar_process_files <- function(arguments) {
   if ( !is.null(arguments$covariates) ) {
     dim_covariates <- dim(covariates_file_content)
 
-    if (dim_genotype[1] != dim_covariates[2]) {
+    if (dim_genotype[2] != dim_covariates[2]) {
       message("[WARN] The number of samples in your genotype and covariate files do not match..",
               "\n\\___   leqtar will try to correct for this sample indifference..")
       warnings <- warnings + 1
-    } else if (dim_genotype[1] != dim_phenotype[2]) {
+    } else if (dim_genotype[2] != dim_phenotype[2]) {
       message("[WARN] The number of samples in your genotype and phenotype files do not match..",
               "\n\\___   leqtar will try to correct for this sample indifference..")
       warnings <- warnings + 1
@@ -115,7 +60,7 @@ leqtar_process_files <- function(arguments) {
       warnings <- warnings + 1
     }
   } else {
-    if (dim_genotype[1] != dim_phenotype[2]) {
+    if (dim_genotype[2] != dim_phenotype[2]) {
       message("[WARN] The number of samples in your genotype and phenotype files do not match..",
               "\n\\___   leqtar will try to correct for this sample indifference..")
       warnings <- warnings + 1
@@ -133,7 +78,7 @@ leqtar_process_files <- function(arguments) {
   message("[INFO] Checking genotype data..")
 
   if ( class( as.vector(genotype_file_content[1,1]) ) == "character" && arguments$genoToFreq == F ) {
-    stop("[STOP] Detected characters in genotype data. If you want leqtar to change them to\n\\___   frequencies, set argument 'genoToFreq=T'..")
+    stop("[STOP] Detected characters in genotype data. If you want leqtar to change them to\n  \\___   frequencies, set argument 'genoToFreq=T'..")
 
   } else if ( class( as.vector(genotype_file_content[1,1]) ) == "character" && arguments$genoToFreq == T ) {
     message("[INFO] Genotype conversion: ", as.character(arguments$genoToFreq), ", conversing genotypes..")
@@ -294,6 +239,7 @@ leqtar_process_files <- function(arguments) {
 
   }
   message("[INFO] Checking phenotype data OK..")
+  message("[INFO] ----------#----------")
   message("[INFO] Processing files OK..")
   message("[INFO] ----------#----------")
 
@@ -306,6 +252,42 @@ leqtar_process_files <- function(arguments) {
   }
 
   return( arguments )
+}
+# check_object_or_file -------------------
+#' check_object_or_file
+#'
+#' Checks wether the given parameter is a file path or an R object. Thus determines wether to read it or not.
+#'
+#' @param path_argument the argument that should contain the path.
+#' @param data_argument the argument that contains the object.
+#' @param name_argument variable name to specify genotype phenotype covariaties or w/e in the messages.
+#' @return If the path_argument is indeed given return the file content, else return the object.
+check_object_or_file <- function(path_argument, data_argument, name_argument) {
+  # Check if Object
+  if ( is.null(path_argument) ) {
+    if ( is.matrix(data_argument) | is.data.frame(data_argument) ) {
+      message("[INFO] ", name_argument, " argument: Object..")
+      file_content <- data_argument
+      return( file_content )
+    } else {
+      stop("[STOP] ", name_argument, " argument is not a matrix or a data.frame.. ")
+    }
+    # Check if File
+  } else {
+
+    if ( is.null(data_argument) ) {
+      if ( is.character(path_argument) ) {
+        message("[INFO] ", name_argument, " argument: File path..")
+        extension <- unlist(str_split(path_argument, "\\."))[2]
+        file_content <- read_files(extension, path_argument)
+        return( file_content )
+      } else {
+        stop("[STOP] ", name_argument, " argument has to be a file path.")
+      }
+    } else {
+      stop("[STOP] Dev note: ", name_argument, " data and Genotype cannot both be assigned.")
+    }
+  }
 }
 
 # read_files function ---------------------------------------------

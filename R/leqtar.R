@@ -78,8 +78,9 @@ process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phen
 
   message("[INFO] ----------#----------")
   message("[INFO] Processing arguments..")
+  message("[INFO] ----------#----------")
   # Bind the arguments variable.
-  arguments <- list(run_name = NULL, genotype = NULL, genotypePosition = NULL, genotypeData = NULL, genotyepPositionData = NULL,
+  arguments <- list(run_name = NULL, genotype = NULL, genotypePosition = NULL, genotypeData = NULL, genotypePositionData = NULL,
                     phenotype = NULL, phenotypePosition = NULL, phenotypeData = NULL, phenotypePositionData = NULL, covariates=NULL,
                     covariatesData = NULL, useModel = NULL, output = NULL, genoToFreq = FALSE, forceRun = FALSE)
 
@@ -144,7 +145,7 @@ process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phen
   if ( is.null(covariateFile) ) {
     message("[INFO] No covariateFile specified, moving on..")
   } else if ( is.matrix(covariateFile) || is.data.frame(covariateFile) ) {
-    arguments <- modifyList(arguments, list(covariates = covariateFile) )
+    arguments <- modifyList(arguments, list(covariatesData = covariateFile) )
   } else {
     if ( file.exists(covariateFile) ) {
       arguments <- modifyList(arguments, list(covariates = covariateFile) )
@@ -172,6 +173,16 @@ process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phen
     stop("[STOP] Model: ", as.character(useModel), " is not recognized by Leqtar..")
   }
 
+  # Check how Force Run is set
+  if ( forceRun == F ) {
+    message("[INFO] Forced: ", as.character(forceRun), "..")
+  } else if ( forceRun == T ) {
+    message("[INFO] Forced: ", as.character(forceRun), "..")
+  } else {
+    stop("[STOP] The flag 'forceRun' has to be a boolean..")
+  }
+  arguments <- modifyList( arguments, list(forceRun = forceRun) )
+
   # Check if the output directory is specified, if not create the output directory.
   if ( is.null(output_dir) ) {
     arguments$output <- getwd()
@@ -181,16 +192,16 @@ process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phen
 
   arguments <- init_basic_directories(arguments)
 
+  # Check how genoToFreq is set.
   if ( genoToFreq == F ) {
     message("[INFO] Genotype conversion: ", as.character(genoToFreq), " ..")
-    arguments <- modifyList( arguments, list(genoToFreq = genoToFreq) )
   } else if ( genoToFreq == T) {
     message("[INFO] Genotype conversion: ", as.character(genoToFreq), " ..")
-    arguments <- modifyList( arguments, list(genoToFreq = genoToFreq) )
   } else {
     stop("[STOP] The flag 'genoToFreq' has to be a boolean..")
   }
-
+  arguments <- modifyList( arguments, list(genoToFreq = genoToFreq) )
+  message("[INFO] ----------#----------")
   message("[INFO] Processing arguments OK..")
   message("[INFO] ----------#----------")
   return(arguments)
@@ -226,12 +237,12 @@ init_basic_directories <- function(arguments) {
   message("[INFO] Output directory: ", as.character( file.path(arguments$output, leqtar_out, arguments$run_name, fsep=.Platform$file.sep) ), "..")
 
   if ( !dir.exists( file.path(arguments$output, leqtar_out, fsep=.Platform$file.sep) ) ) {
-    message("\\___   The output directory 'leqtar_out' does not yet exists, creating leqtar_out..")
+    message("\\___   The output directory: ", as.character(leqtar_out), ", does not yet exists, creating directory..")
     dir.create( file.path(arguments$output, leqtar_out, fsep=.Platform$file.sep) )
   }
 
   if ( !dir.exists( file.path(arguments$output, leqtar_out, arguments$run_name, fsep=.Platform$file.sep) ) ) {
-    message("\\___   The output direcotry does not yet exist, creating ", as.character( file.path(arguments$output, leqtar_out, arguments$run_name, fsep=.Platform$file.sep) ), ".." )
+    message("\\___   The output directory: ", as.character(arguments$run_name), ", does not yet exist, creating directory.." )
     dir.create( file.path(arguments$output, leqtar_out, arguments$run_name, fsep=.Platform$file.sep) )
 
   } else if ( arguments$forceRun == T && dir.exists( file.path( arguments$output, leqtar_out, arguments$run_name) ) ) {
@@ -240,7 +251,7 @@ init_basic_directories <- function(arguments) {
     dir.create( file.path(arguments$output, leqtar_out, arguments$run_name, fsep=.Platform$file.sep) )
 
   } else {
-    stop("[STOP] The directory with run name: ", as.character( file.path(arguments$output, leqtar_out, arguments$run_name, fsep=.Platform$file.sep) ), " already exists..\n\\___   Please choose a different name or use 'forceRun = TRUE' to overwrite data..")
+    stop("[STOP] The directory with run name: ", as.character( file.path(arguments$output, leqtar_out, arguments$run_name, fsep=.Platform$file.sep) ), " already exists..\n  \\___   Please choose a different name or use 'forceRun = TRUE' to overwrite data..")
   }
 
   # Merge paths.
