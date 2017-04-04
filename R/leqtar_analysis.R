@@ -8,10 +8,9 @@
 #'
 #' Uses linear regression analysis to identify the influence of a specific genotype on expression.
 #'
-#' @param dataFiles a named list containing the data files that were processed by leqtar_process_files.R
 #' @param arguments parsed and processed arguments
 #' @import "MatrixEQTL"
-leqtar_analysis <- function(dataFiles, arguments) {
+leqtar_analysis <- function(arguments) {
   message("[INFO] Initializing linear regression analysis..")
   # Settings ------
   # Cis window
@@ -22,7 +21,7 @@ leqtar_analysis <- function(dataFiles, arguments) {
 
   # Covariates
   if ( !is.null(arguments$covariates) ) {
-    covariates <- dataFiles$covariates
+    covariates <- arguments$covariatesData
   } else {
     covariates <- character()
   }
@@ -38,7 +37,7 @@ leqtar_analysis <- function(dataFiles, arguments) {
 
   # Set genotype variables for analysis ----------------
   snps = SlicedData$new()
-  snps$CreateFromMatrix( as.matrix(dataFiles$genotype) )
+  snps$CreateFromMatrix( as.matrix(arguments$genotypeData) )
   snps$fileDelimiter <- "\t";      # the TAB character
   snps$fileOmitCharacters <- "NA"; # denote missing values;
   snps$fileSkipRows <- 1;          # one row of column labels
@@ -47,7 +46,7 @@ leqtar_analysis <- function(dataFiles, arguments) {
 
   # Set expression variables for analysis ----------------
   expr = SlicedData$new()
-  expr$CreateFromMatrix( as.matrix(dataFiles$expression) )
+  expr$CreateFromMatrix( as.matrix(arguments$phenotypeData) )
   expr$fileDelimiter <- "\t";      # the TAB character
   expr$fileOmitCharacters <- "NA"; # denote missing values;
   expr$fileSkipRows <- 1;          # one row of column labels
@@ -57,7 +56,7 @@ leqtar_analysis <- function(dataFiles, arguments) {
   # Set covariates variables for analysis ----------------
   if ( !is.null(arguments$covariates) ) {
     covs = SlicedData$new()
-    covs$CreateFromMatrix( as.matrix(dataFiles$covariates) )
+    covs$CreateFromMatrix( as.matrix(arguments$covariatesData) )
     covs$fileDelimiter <- "\t";      # the TAB character
     covs$fileOmitCharacters <- "NA"; # denote missing values;
     covs$fileSkipRows <- 1;          # one row of column labels

@@ -15,9 +15,9 @@ leqtar_results <- function(arguments) {
   # Create Genotype plots.
   leqtar_create_genotype_boxplots(output_data, output_img)
 
-  # Construct info tables.
-  leqtar_create_tables(output_data, output_info)
-
-  # Create manhattan plots.
-  leqtar_create_manhattan_plots(output_data, output_img)
+  # # Construct info tables.
+  # leqtar_create_tables(output_data, output_info)
+  #
+  # # Create manhattan plots.
+  # leqtar_create_manhattan_plots(output_data, output_img)
 }

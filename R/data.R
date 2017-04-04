@@ -4,14 +4,27 @@
 #'
 #' @format A data frame with 200 rows and 500 variables:
 #' \describe{
-#'   \item{rs000001}{Example SNP with rs number 1}
-#'   \item{rs000002}{Example SNP with rs number 2}
-#'   \item{rs000003}{Example SNP with rs number 3}
+#'   \item{rs000001}{Example SNP with rs number 1.}
+#'   \item{rs000002}{Example SNP with rs number 2.}
+#'   \item{rs000003}{Example SNP with rs number 3.}
 #'   ...
 #' }
 "genotype_test_data"
 
-#' Example of an expression data set.
+#' Example of a genotype position data set.
+#'
+#' This data set contains some genotypes.
+#'
+#' @format A data frame with 200 rows and 3 variables:
+#' \describe{
+#'   \item{snp}{SNP IDs.}
+#'   \item{chr}{The chr location for each SNP.}
+#'   \item{pos}{The position for each SNP.}
+#'   ...
+#' }
+"genotype_test_locations"
+
+#' Example of a phenotype position data set.
 #'
 #' This data set contains some expression values. These values represent raw read counts.
 #'
@@ -22,7 +35,20 @@
 #'   \item{sample3}{Sample 3 with expression in raw read counts per gene.}
 #'   ...
 #' }
-"expression_test_data"
+"phenotype_test_data"
+
+#' Example of a phenotype data set.
+#'
+#' This data set contains some expression values. These values represent raw read counts.
+#'
+#' @format A data frame with 5000 rows and 4 variables:
+#' \describe{
+#'   \item{geneid}{Gene IDs.}
+#'   \item{chr}{The chr location for each gene.}
+#'   \item{s1}{The start position for each gene.}
+#'   \item{s2}{The stop position for each gene.}
+#' }
+"phenotype_test_locations"
 
 #' Example of a covariate data set.
 #'

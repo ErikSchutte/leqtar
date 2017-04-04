@@ -4,11 +4,9 @@
 \alias{leqtar_analysis}
 \title{leqtar_analysis function}
 \usage{
-leqtar_analysis(dataFiles, arguments)
+leqtar_analysis(arguments)
 }
 \arguments{
-\item{dataFiles}{a named list containing the data files that were processed by leqtar_process_files.R}
-
 \item{arguments}{parsed and processed arguments}
 }
 \description{
