@@ -2,69 +2,41 @@
 #' leqtar_create_genotype_boxplots
 #'
 #' Using the output from leqtar_analysis this function will try to create genotype boxplots for the top x associations found by Matrix eQTL.
-#' @param output_data the folder containing the output from leqtar_analysis
+#'
+#' @param arguments the processed input arguments.
+#' @param output_data the folder containing the output from leqtar_analysis.
 #' @param output_img the folder whre genotype boxplots should go. Note it contains subfolders for manhattan plots and for genotype boxplots.
 #' @importFrom "gtools" "mixedorder"
 #' @importFrom "gtools" "mixedsort"
 # ' @import "ggplot2"
 # ' @importFrom "reshape2" "melt"
-leqtar_create_genotype_boxplots <- function(output_data, output_img) {
+leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) {
 
   message("[INFO] ----------#----------")
   message("[INFO] Creating genotype boxplots..")
 
   # Get files.
-  output <- list.files( file.path( output_data ) )
+  output <- list.files( file.path( output_data ), pattern = "*.R[Dd]{1}ata" )
 
-  # Load data.
-  tmp_env <- new.env()
-  load( file.path( output_data, output, fsep = .Platform$file.sep ), envir = tmp_env)
-  output.data <- get( ls(tmp_env)[1], envir = tmp_env)
-  rm(tmp_env)
+  # Get result files.
+  result_set <- lapply(output, function(result_file) {
 
-  # Extract all eqtls.
-  eqtls <- output.data$all$eqtls
+    # Load data.
+    tmp_env <- new.env()
+    load( file.path( output_data, output, fsep = .Platform$file.sep ), envir = tmp_env)
+    output.data <- get( ls(tmp_env)[1], envir = tmp_env)
+    rm(tmp_env)
 
-  # Get significant eqtls.
-  eqtls.05 <- eqtls[which(eqtls$pvalue < 0.05),]
+    # Extract all eqtls.
+    qtls <- output.data$all$eqtls
 
-  message("[INFO] FURTHER IMPLEMENTATION REQUIRED")
+    # Get significant eqtls.
+    qtls.05 <- qtls[which(qtls$pvalue < 0.05),]
+    message("[INFO] Total QTLs: ", dim(qtls)[1], "\n\\___   Significant QTLs (< 0.05): ", dim(qtls.05)[1], "..")
 
+  })
 
-  # ## Set path to sqtl result files.
-  # data.folder = file.path("~/Dropbox/Erik Schutte Internship 2016/Results/eQTLs/")
-  # eqtl.files = list.files(data.folder, pattern = "*.Rdata", recursive=T)
-  # eqtl.files.cis = eqtl.files[grep(eqtl.files, pattern="cis")]
-  # eqtl.files.cis.no.individual <- eqtl.files.cis[c(1,2,5)]
-  #
-  # ## Load expression data
-  # load("~/Dropbox/Erik Schutte Internship 2016/Data/eQTL-data/gsTcell_gene_expr_vst_88samples_gencode.Rdata")
-  #
-  # ## Genotype file + Location file
-  # load("~/Dropbox/Erik Schutte Internship 2016/Data/eQTL-data/gsTcell_genotype_frequencies_transformed.Rdata")
-  # load("~/Dropbox/Erik Schutte Internship 2016/Data/eQTL-data/gsTcell_genotypes_transformed.Rdata")
-  # genotype.data <- snps.genotype.t #snps.t.gencode OR snps.t
-  # genotype.loc <- read.table("~/Dropbox/Erik Schutte Internship 2016/Data/eQTL-data/snp.txt",
-  #                            header=T, stringsAsFactors = F)
-  #
-  # ## Loop over Rdata files.
-  # lapply(eqtl.files.cis.no.individual, function(f) {
-  #
-  #   ## Create new environmet for data.
-  #   tmp_env <- new.env()
-  #
-  #   ## Load Rdata file.
-  #   load( file.path( paste(data.folder, f, sep="") ), tmp_env )
-  #
-  #   ## Test, remove when done.
-  #   # load( file.path( paste(data.folder, eqtl.files[1], sep="") ), tmp_env )
-  #   # f = eqtl.files[1]
-  #
-  #   ## Get data loaded, destory temp environment.
-  #   f.data = get( ls( tmp_env )[1], envir=tmp_env )
-  #   rm(tmp_env)
-  #
-  #   ## Set name of file.
+  #   # Set name of file.
   #   f.name = sub(f, pattern=".*/", replacement="")
   #   f.name = sub(f.name, pattern="\\.Rdata", replacement="")
   #
