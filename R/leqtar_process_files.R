@@ -169,9 +169,13 @@ leqtar_process_files <- function(arguments) {
       covariates_file_content <- covariates_file_content[,coexistingSamples, drop=F]
 
       # Re-order data.
-      genotype_file_content <- genotype_file_content[,mixedsort (colnames(genotype_file_content) ), drop=F]
+      genotype_file_content <- genotype_file_content[,mixedsort( colnames(genotype_file_content) ), drop=F]
       phenotype_file_content <- phenotype_file_content[,mixedsort( colnames(phenotype_file_content) ), drop=F]
       covariates_file_content <- covariates_file_content[,mixedsort( colnames(covariates_file_content) ), drop=F]
+      if (arguments$genoToFreq == T) {
+        genotype_file_content_unconverted <- genotype_file_content_unconverted[,coexistingSamples, drop=F]
+        genotype_file_content_unconverted <- genotype_file_content_unconverted[, mixedsort( colnames(genotype_file_content_unconverted) ), drop=F]
+      }
 
       # Output changes.
       message("[WARN] Initial number of phenotype samples: ", length(phenotype_samples),
@@ -205,7 +209,10 @@ leqtar_process_files <- function(arguments) {
       # Re-order data.
       phenotype_file_content <- phenotype_file_content[,mixedsort( colnames(phenotype_file_content) ), drop=F]
       genotype_file_content <- genotype_file_content[,mixedsort( colnames(genotype_file_content) ), drop=F]
-
+      if ( arguments$genoToFreq == T ) {
+        genotype_file_content_unconverted <- genotype_file_content_unconverted[,coexistingSamples, drop=F]
+        genotype_file_content_unconverted <- genotype_file_content_unconverted[, mixedsort( colnames(genotype_file_content_unconverted) ), drop=F]
+      }
       # Output changes.
       message("[WARN] Initial number of phenotype samples: ", length(phenotype_samples),
               "\n\\___   Initial number of genotype samples: ", length(genotype_samples),
@@ -240,6 +247,27 @@ leqtar_process_files <- function(arguments) {
   }
   message("[INFO] Checking phenotype data OK..")
   message("[INFO] ----------#----------")
+  message("[INFO] Checking column names additional files..")
+
+  # Genotype Position Data -----
+  expected_genotypePosDataCols <- c("snp", "chr", "pos")
+  genotypePosDataCols <- colnames( arguments$genotypePositionData )
+  if ( all( genotypePosDataCols == expected_genotypePosDataCols ) ) {
+    message("[INFO] Columns genotype position: OK..")
+  } else {
+    stop("[STOP] Please check the leqtar help, the column names of the genotype position file have to match 'snps chr pos'.." )
+  }
+  # Phenotype Position Data -----
+  expected_phenotypePosDataCols <- c("geneid", "chr", "s1", "s2")
+  phenotypePosDataCols <- colnames(arguments$phenotypePositionData)
+  if ( all( phenotypePosDataCols == expected_phenotypePosDataCols ) ) {
+    message("[INFO] Columns phenotype position: OK..")
+  } else {
+    stop("[STOP] Please check the leqtar help, the column names of the phenotype position file have to match 'geneid chr s1 s2'.." )
+  }
+
+  message("[INFO] Checking column names additional files OK..")
+  message("[INFO] ----------#----------")
   message("[INFO] Processing files OK..")
   message("[INFO] ----------#----------")
 
@@ -250,7 +278,9 @@ leqtar_process_files <- function(arguments) {
   if ( !is.null(arguments$covariates) ) {
     arguments$covariatesData <- covariates_file_content
   }
-
+  if ( arguments$genoToFreq == T ) {
+    arguments$genotypeUnconvertedData <- genotype_file_content_unconverted
+  }
   return( arguments )
 }
 # check_object_or_file -------------------
@@ -317,15 +347,15 @@ read_files <- function(file_extension, file_path) {
     } else if (file_extension == "tsv") {
       read.table(file_path, stringsAsFactors = F, header = T, sep="\t")
     } else {
-      stop("[STOP] File extension: ", file_extension, " not supported!\nCurrently supports RData, txt, xlsx, csv and tsv files.")
+      stop("[STOP] File extension: ", file_extension, " not supported!\n\\___   Currently supports RData, txt, xlsx, csv and tsv files.")
     }
   },
   error=function(condition) {
-    message("[ERR] Could not read in file, critical error..\n[ERR] Reason:\n[ERR] ", condition)
+    message("[ERR] Could not read in file, critical error..\n\\___   Reason:\n\\___   ", condition)
     return(NULL)
   },
   warning=function(condition) {
-    message("[WARNING] Could not read in file..\n[WARNING] Reason:\n[WARNING] ", condition)
+    message("[WARN] Could not read in file..\n\\___   Reason:\n\\___   ", condition)
     return(NULL)
   },
   finally={

@@ -5,8 +5,8 @@
 \title{Processes the user input arguments}
 \usage{
 process_arguments(run_name, genotypeFile, genotypePositionFile, phenotypeFile,
-  phenotypePositionFile, covariateFile, useModel, output_dir, genoToFreq,
-  forceRun)
+  phenotypePositionFile, covariateFile, geneNames, useModel, output_dir,
+  genoToFreq, forceRun)
 }
 \arguments{
 \item{run_name}{Paramter that defines the name of the current run.}
@@ -20,6 +20,8 @@ process_arguments(run_name, genotypeFile, genotypePositionFile, phenotypeFile,
 \item{phenotypePositionFile}{A file/object containing the positions for each Gene.}
 
 \item{covariateFile}{A file/object contaning covariates for each sample in the genotype- and phenotype-File.}
+
+\item{geneNames}{A file containing the gene names that corrospond to Ensemble ID's or any other ID.}
 
 \item{useModel}{A string representing the model that should be used for QTL mapping.}
 

@@ -6,8 +6,8 @@
 \usage{
 leqtar(run_name = NULL, genotypeFile = NULL, genotypePositionFile = NULL,
   phenotypeFile = NULL, phenotypePositionFile = NULL, useModel = "linear",
-  covariateFile = NULL, output_dir = NULL, genoToFreq = FALSE,
-  forceRun = FALSE)
+  covariateFile = NULL, geneNames = NULL, output_dir = NULL,
+  genoToFreq = FALSE, forceRun = FALSE)
 }
 \arguments{
 \item{run_name}{[REQUIRED] - A name that will be used for the current 'run'. This name has to be unique to perserve data, if you want to overwrite a run see 'forceRun'.}
@@ -23,6 +23,8 @@ leqtar(run_name = NULL, genotypeFile = NULL, genotypePositionFile = NULL,
 \item{useModel}{[REQUIRED] - A model used for QTL analysis. This can be 'linear', 'anova' or 'linear_cross'. This defaults to the 'linear' model.}
 
 \item{covariateFile}{[OPTIONAL] - A Covariate file containing covariates. Sample names are expected as colnames and covariates as rownames.}
+
+\item{geneNames}{[OPTIONAL] - A file containing the gene names that corrospond to Ensemble ID's or any other ID.}
 
 \item{output_dir}{[OPTIONAL] - A relative path from your current working directory or an absolute path to a specific directory. The results will be stored in this location. This defaults to your current working directory.}
 
