@@ -4,7 +4,14 @@
 \alias{leqtar_create_tables}
 \title{leqtar_create_tables}
 \usage{
-leqtar_create_tables()
+leqtar_create_tables(arguments, output_data, output_tbl)
+}
+\arguments{
+\item{arguments}{The processed input arguments}
+
+\item{output_data}{the folder containing the output from leqtar_analysis.}
+
+\item{output_tbl}{the folder where the data tables should go.}
 }
 \description{
 Creates result tables from the data file produced by leqtar_analysis.

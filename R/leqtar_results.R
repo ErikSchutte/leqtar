@@ -10,14 +10,14 @@ leqtar_results <- function(arguments) {
   output_dir <- arguments$output
   output_data <- file.path( output_dir, "data", fsep = .Platform$file.sep)
   output_img <- file.path( output_dir, "images", fsep = .Platform$file.sep)
-  output_inf <- file.path( output_dir, "info", fsep = .Platform$file.sep)
+  output_tbl <- file.path( output_dir, "tables", fsep = .Platform$file.sep)
 
   # Create Genotype plots.
-  leqtar_create_genotype_boxplots(arguments, output_data, output_img)
+  leqtar_create_genotype_boxplots(arguments, output_data, output_img, output_tbl)
 
-  # # Construct info tables.
-  # leqtar_create_tables(output_data, output_info)
-  #
+  # Construct info tables.
+  leqtar_create_tables(arguments, output_data, output_tbl)
+
   # # Create manhattan plots.
   # leqtar_create_manhattan_plots(output_data, output_img)
 }

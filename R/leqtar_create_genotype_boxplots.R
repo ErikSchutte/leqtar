@@ -6,15 +6,17 @@
 #' @param arguments the processed input arguments.
 #' @param output_data the folder containing the output from leqtar_analysis.
 #' @param output_img the folder whre genotype boxplots should go. Note it contains subfolders for manhattan plots and for genotype boxplots.
+#' @param output_tbl the folder where the data tables should go.
 #' @importFrom "gtools" "mixedorder"
 #' @importFrom "gtools" "mixedsort"
 #' @import "ggplot2"
 #' @importFrom "reshape2" "melt"
 #' @importFrom "stringr" "str_split"
-leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) {
+leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img, output_tbl) {
 
   message("[INFO] ----------#----------")
   message("[INFO] Creating genotype boxplots..")
+  message("[INFO] ----------#----------")
 
   # Get files.
   output <- list.files( file.path( output_data ), pattern = "*.R[Dd]{1}ata" )
@@ -218,7 +220,7 @@ leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) 
         geom_boxplot(aes( fill=genotypes.value), outlier.shape=NA ) +
         geom_point( position=position_jitter(width=0.15),colour = "darkgrey") +
         coord_cartesian( ylim = c( mi,ma ) ) +
-        ggtitle( paste(qtl$genenames, " - ", qtl$snps, sep = ""),
+        ggtitle( paste(qtl$gene_name, " - ", qtl$snps, sep = ""),
                  subtitle = paste( "P-value: ", qtl$pvalue ) ) +
         theme( plot.title = element_text( size = rel(1.6), hjust = 0.5 ),
                plot.subtitle = element_text(size = rel(1), hjust = 0.5 ) ) +
@@ -232,10 +234,18 @@ leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) 
                                labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value ), ")", sep ="") )
       # }
 
-
-      ggsave( filename=paste( output_img, "/genotype/", qtl$gene_name, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf")
+      suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene_name, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
     })
 
+
+    # Save result tables.
+    message("[INFO] Saving result tables..")
+    write.table(qtls.05, file = paste(output_tbl, "/detected_qtls_0.05.tsv", sep = ""), sep="\t", quote = F, row.names = F)
+    write.table(qtls, file = paste(output_tbl, "/detected_qtls.tsv", sep = ""), sep="\t", quote = F, row.names = F)
+
+    message("[INFO] ----------#----------")
+    message("[INFO] Creating genotype boxplots.. OK")
+    message("[INFO] ----------#----------")
   })
 
   #   # Set name of file.
