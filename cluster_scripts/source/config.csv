@@ -1,0 +1,4 @@
+OPTION,VALUE
+Xms,30
+Xmx,30
+GenotypeIO,/groups/umcg-wijmenga/tmp02/projects/umcg-eschutte/source/Genotype-IO-1.0.6-SNAPSHOT-jar-with-dependencies.jar
