@@ -25,18 +25,19 @@ cat("Building package", build_version, "on", build_time, "\n")
 #' @export
 #' @param run_name [REQUIRED] - A name that will be used for the current 'run'. This name has to be unique to perserve data, if you want to overwrite a run see 'forceRun'.
 #' @param genotypeFile [REQUIRED] - A Genotype file. SNP names are expected as colnames and sample names as rownames.
-#' @param genotypePositionFile [REQUIRED] - A file containing the positions for each SNP. The colnames are 'snp', 'chr' and	'pos'.
 #' @param phenotypeFile [REQUIRED] - A Phenotype file. Sample names are expected as colnames and stimulations/genes as rownames.
-#' @param phenotypePositionFile [REQUIRED] - A file containing the positions for each gene.
 #' @param useModel [REQUIRED] - A model used for QTL analysis. This can be 'linear', 'anova' or 'linear_cross'. This defaults to the 'linear' model.
+#' @param genotypePositionFile [OPTIONAL] - A file containing the positions for each SNP. The colnames are 'snp', 'chr' and	'pos'.
+#' @param phenotypePositionFile [OPTIONAL] - A file containing the positions for each gene.
 #' @param covariateFile [OPTIONAL] - A Covariate file containing covariates. Sample names are expected as colnames and covariates as rownames.
 #' @param geneNames [OPTIONAL] - A file containing the gene names that corrospond to Ensemble ID's or any other ID.
 #' @param output_dir [OPTIONAL] - A relative path from your current working directory or an absolute path to a specific directory. The results will be stored in this location. This defaults to your current working directory.
 #' @param genoToFreq [OPTIONAL] - Turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis. The default is set to 'FALSE'.
 #' @param forceRun [OPTIONAL] - Normally Leqtar perserves data, by turning this to `TRUE` runs that already exist will be overwritten. The default is set to 'FALSE'.
 #' @note For a complete view of how to run and use Leqtar, please visit https://github.com/ErikSchutte/leqtar.
-leqtar <- function(run_name = NULL, genotypeFile = NULL, genotypePositionFile = NULL, phenotypeFile = NULL, phenotypePositionFile = NULL,
-                   useModel = 'linear', covariateFile = NULL, geneNames = NULL, output_dir = NULL,  genoToFreq = FALSE, forceRun = FALSE) {
+leqtar <- function(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL, useModel = 'linear',
+                    genotypePositionFile = NULL, phenotypePositionFile = NULL, covariateFile = NULL,
+                   geneNames = NULL, output_dir = NULL,  genoToFreq = FALSE, forceRun = FALSE) {
 
   message("[INFO] leqtar stands for Linear eQTL analysis in R",
           "\n[INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues",
@@ -53,10 +54,10 @@ leqtar <- function(run_name = NULL, genotypeFile = NULL, genotypePositionFile = 
   # Parse data from the input files for analysis.
   leqtar_analysis(arguments)
 
-  # Process results.
-  leqtar_results(arguments)
-
+  # Return used settings.
   message("[INFO] --------DONE!--------")
+  return(arguments)
+
 }
 # process_arguments function -----------------------------------------------------
 #' Processes the user input arguments
@@ -180,10 +181,10 @@ process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phen
   if (is.null(geneNames) ) {
     message("[INFO] geneName: missing, using package default. This might result in missing values.")
     gencode_names <- leqtar::gencode_names
-    arguments <- modifyList(arguments, list(geneNames <- gencode_names) )
+    arguments <- modifyList(arguments, list(geneNames = gencode_names) )
   } else {
     message("[INFO] geneName: ", as.character(geneNames), "..")
-    arguments <- modifyList(arguments, list(geneNames <- geneNames) )
+    arguments <- modifyList(arguments, list(geneNames = geneNames) )
   }
 
   # Check how Force Run is set -----

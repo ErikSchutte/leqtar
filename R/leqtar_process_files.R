@@ -250,21 +250,31 @@ leqtar_process_files <- function(arguments) {
   message("[INFO] Checking column names additional files..")
 
   # Genotype Position Data -----
-  expected_genotypePosDataCols <- c("snp", "chr", "pos")
+  expected_genotypePosDataCols <- c("snps", "chr", "pos")
   genotypePosDataCols <- colnames( arguments$genotypePositionData )
-  if ( all( genotypePosDataCols == expected_genotypePosDataCols ) ) {
-    message("[INFO] Columns genotype position: OK..")
+  if ( length( genotypePosDataCols ) == length( expected_genotypePosDataCols ) ) {
+    if ( all( genotypePosDataCols == expected_genotypePosDataCols ) ) {
+      message("[INFO] Columns genotype position: OK..")
+    } else {
+      stop("[STOP] Please check the leqtar help, the column names of the genotype position file have to match 'snps chr pos'.." )
+    }
   } else {
-    stop("[STOP] Please check the leqtar help, the column names of the genotype position file have to match 'snps chr pos'.." )
+    stop("[STOP] Please check the leqtar help, there are either too many or too few columns in the genotype position file..")
   }
+
   # Phenotype Position Data -----
   expected_phenotypePosDataCols <- c("geneid", "chr", "s1", "s2")
   phenotypePosDataCols <- colnames(arguments$phenotypePositionData)
-  if ( all( phenotypePosDataCols == expected_phenotypePosDataCols ) ) {
-    message("[INFO] Columns phenotype position: OK..")
+  if ( length( phenotypePosDataCols ) == length( expected_phenotypePosDataCols ) ) {
+    if ( all( phenotypePosDataCols == expected_phenotypePosDataCols ) ) {
+      message("[INFO] Columns phenotype position: OK..")
+    } else {
+      stop("[STOP] Please check the leqtar help, the column names of the phenotype position file have to match 'geneid chr s1 s2'.." )
+    }
   } else {
-    stop("[STOP] Please check the leqtar help, the column names of the phenotype position file have to match 'geneid chr s1 s2'.." )
+    stop("[STOP] Please check the leqtar help, there are either too many or too few columns in the phenotype position file..")
   }
+
 
   message("[INFO] Checking column names additional files OK..")
   message("[INFO] ----------#----------")
@@ -273,7 +283,9 @@ leqtar_process_files <- function(arguments) {
 
   # Store content in global argument object.
   arguments$genotypeData <- genotype_file_content
+  arguments$genotypePositionData <- genotype_position_content
   arguments$phenotypeData <- phenotype_file_content
+  arguments$phenotypePositionData <- phenotype_position_content
 
   if ( !is.null(arguments$covariates) ) {
     arguments$covariatesData <- covariates_file_content

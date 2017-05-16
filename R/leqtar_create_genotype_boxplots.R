@@ -10,6 +10,7 @@
 #' @importFrom "gtools" "mixedsort"
 #' @import "ggplot2"
 #' @importFrom "reshape2" "melt"
+#' @importFrom "stringr" "str_split"
 leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) {
 
   message("[INFO] ----------#----------")
@@ -29,14 +30,14 @@ leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) 
 
     # Extract all qtls.
     qtls <- f.data$all$eqtls
-    head(qtls)
+
     # Get significant qtls.
     qtls.05 <- qtls[which(qtls$pvalue < 0.05),]
     message("[INFO] Total QTLs: ", dim(qtls)[1], "\n\\___   Significant QTLs (< 0.05): ", dim(qtls.05)[1], "..")
     message("[INFO] Preparing QTL tables..")
     qtls.05 <- prepare_df_qtls(qtls.05, arguments)
-    print(head(qtls.05))
 
+    # Iterate over df.
     ll <- apply(qtls.05, 1, function(qtl) {
       # Set each row as a dataframe instead of a vector
       qtl <- data.frame(t(qtl))
@@ -47,12 +48,12 @@ leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) 
       # Retrieve all genotypes from all samples for the specified snps.
       if ( arguments$genoToFreq == T ) {
         genotypes <- arguments$genotypeUnconvertedData
-        print(head(genotypes))
-        genotypes <- genotypes[as.character(qtl$snps), 1:(ncol(genotypes)-1), drop = F]
-        print(head(genotypes))
+        nCols <- ncol(genotypes) - 1
+        genotypes <- genotypes[which( rownames(genotypes) == as.character(qtl$snps) ), 1:nCols, drop = F]
+
       } else {
         genotypes <- arguments$genotypeData
-        genotypes <- genotypes[as.character(qtl$snps),]
+        genotypes <- genotypes[which( rownames(genotypes) == as.character(qtl$snps) ),]
       }
 
       # Transpose and to data frame.
@@ -70,11 +71,11 @@ leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) 
       # colnames(genotypes) = gsub(colnames(genotypes), pattern="\\.[0-9]+", replacement="")
 
       # Melt the transposed genotypes.
-      genotypes.melt <- melt(t(genotypes))
+      genotypes.melt <- suppressMessages( melt( t(genotypes) ) )
 
       # Position current gene in the expression file.
       gene.expression <- arguments$phenotypeData
-      gene.expression <- gene.expression[ which( qtl$gene == rownames( gene.expression ) ), ]
+      gene.expression <- gene.expression[ which( rownames( gene.expression ) == qtl$gene ), ]
 
       # if ( f.type != "individual" ) {
       #   gene.expression <- ge.gencode[ which( qtl$gene == rownames( ge.gencode ) ), ]
@@ -105,16 +106,16 @@ leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) 
       #   df.ge <- cbind.data.frame(df.ge, time=qtl$t.interval)
       # }
 
-      df.ge.melt <- melt(df.ge)
+      df.ge.melt <- suppressMessages(melt(df.ge))
 
       # Set sample names.
-      df.ge.melt[,2] <- names(gene.expression)
+      df.ge.melt[,1] <- names(gene.expression)
 
       # Bind the dataframes together.
       df.melt <- cbind.data.frame(expression=df.ge.melt[,2],
                                   sample=df.ge.melt[,1],
                                   genotypes=genotypes.melt)
-      print(head(df.melt))
+
       # Create an order for the timepoints.
       # timepoints.order <- c("t0","t10","t30","t180")
 
@@ -122,10 +123,19 @@ leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) 
       # df.melt$timepoints <- factor(df.melt$timepoints, levels=timepoints.order)
 
       # Create an order for the genotypes.
-      genotype.levels <- levels(df.melt$genotypes.value)
-      major.allele = strsplit(as.character(qtl$minor_major),"_")[[1]][2]
+      if ( length( levels( df.melt$genotypes.value ) ) > 3 ) {
+        df.melt[ which( df.melt$genotypes.value == levels(df.melt$genotypes.value)[[3]] ), "genotypes.value"] <- paste( rev( unlist( stringr::str_split( levels(df.melt$genotypes.value)[[3]], "") ) ), collapse = "" )
+        df.melt$genotypes.value <- factor(df.melt$genotypes.value)
+        genotype.levels <- levels(df.melt$genotypes.value)
+      } else {
+        genotype.levels <- levels(df.melt$genotypes.value)
+      }
+
+      major.allele = strsplit(as.character(qtl$`alleles..mi.mj.`),"_")[[1]][2]
       genotype.order <- c()
-      if (length(genotype.levels) == 2) { # Only 2 levels for genotypes.
+      # print(major.allele)
+
+      if ( length(genotype.levels) == 2 ) { # Only 2 levels for genotypes.
 
         one <- strsplit(genotype.levels,"")[[1]] # first level
         two <- strsplit(genotype.levels,"")[[2]] # second level
@@ -153,7 +163,9 @@ leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) 
 
         genotype.order <- c(major, heter)
 
-      } else { # 3 levels for genotypes.
+      } else { # 3 or 4 levels for genotypes.
+        # print(genotype.levels)
+
         one <- strsplit(genotype.levels,"")[[1]] # first level
         two <- strsplit(genotype.levels,"")[[2]] # second level
         three <- strsplit(genotype.levels,"")[[3]] #third level
@@ -196,7 +208,7 @@ leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) 
       df.melt$genotypes.value <- factor(df.melt$genotypes.value, levels=genotype.order)
 
       # Order data on factor levels.
-      df.melt <- df.melt[order(df.melt$timepoints),]
+      # df.melt <- df.melt[order(df.melt$timepoints),]
       df.melt <- df.melt[order(df.melt$sample),]
 
       # Save ggplot in variable and plot.
@@ -211,18 +223,17 @@ leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img) 
         theme( plot.title = element_text( size = rel(1.6), hjust = 0.5 ),
                plot.subtitle = element_text(size = rel(1), hjust = 0.5 ) ) +
         xlab(paste("Genotypes",sep="")) + ylab("Norm. read count")
-      if ( f.type != "individual" ) {
-        p + scale_fill_discrete( name="Genotypes",
-                                 labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value )/4, ")", sep ="") ) +
-          facet_wrap( ~ timepoints, scales="free")
-      } else {
-        p + scale_fill_discrete( name="Genotypes",
-                                 labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value ), ")", sep ="") ) +
-          facet_wrap( ~ timepoints, scales="free")
-      }
+      # if ( f.type != "individual" ) {
+      #   p + scale_fill_discrete( name="Genotypes",
+      #                            labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value )/4, ")", sep ="") ) +
+      #     facet_wrap( ~ timepoints, scales="free")
+      # } else {
+      p + scale_fill_discrete( name="Genotypes",
+                               labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value ), ")", sep ="") )
+      # }
 
-      # ggsave( filename=paste( image.base, f.type, "/", f.acting, "/", f.cov, "/", qtl$origin, "_eQTL_", qtl$t.interval, "_", qtl$genenames, "_", qtl$snps,
-      #                         "_", qtl$minor_major, "_", f.cov, ".pdf", sep=""), plot=last_plot(), device = "pdf")
+
+      ggsave( filename=paste( output_img, "/genotype/", qtl$gene_name, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf")
     })
 
   })
@@ -284,15 +295,16 @@ prepare_df_qtls <- function(qtl, arguments) {
   #Set temp df.
   tmp.df <- NULL
 
+  # Data tables ------------
   # Convert to data.tables
   qtl <-  as.data.table(qtl)
-  print(head(arguments$genotypeUnconvertedData))
   snps <- cbind.data.frame(snps=rownames(arguments$genotypeUnconvertedData), arguments$genotypeUnconvertedData)
   snps <- as.data.table( snps )
   genotype.loc <- as.data.table( arguments$genotypePositionData )
   phenotype.loc <- as.data.table( arguments$phenotypePositionData )
-  geneNames <- as.data.table( arguments$geneNames )
-
+  if ( !is.null(arguments$geneNames ) ) {
+    geneNames <- as.data.table( arguments$geneNames )
+  }
 
   # Minor alleles ------------
   # Set keys for qtls and for snps.
@@ -303,36 +315,45 @@ prepare_df_qtls <- function(qtl, arguments) {
   cols <- c("snps", "MAF")
   snps <- snps[, cols, with=F]
   result <- merge(qtl,snps, all.x=TRUE)
-  print("******* minor_alleles ********")
-  print(result)
+  # print("******* minor_alleles ********")
+  # print(result)
 
   # Snp positions -------------
   # Set keys for qtls and for snps.
   setkey(result, snps)
-  setkey(genotype.loc, snp)
+  setkey(genotype.loc, snps)
 
   # Subset the snps data.frame before the join.
-  result <- merge(result, genotype.loc, all.x=TRUE, by.x = "snps", by.y = "snp")
-  print("******* snps ********")
-  print(result)
+  result <- merge(result, genotype.loc, all.x=TRUE, by.x = "snps", by.y = "snps")
+  colnames(result) <- c("snps", "gene", "statistic", "pvalue", "FDR", "beta", "alleles (mi/mj)", "snps.chr", "snps.pos")
+  # print("******* snps ********")
+  # print(result)
 
-  # Gene names -------------
+  # Gene IDs -------------
   # Set keys
   setkey(result, gene)
   setkey(phenotype.loc, geneid)
 
   result <- merge(result, phenotype.loc, all.x = TRUE, by.x = "gene", by.y = "geneid")
-  print("************** genes *************")
-  print(result)
-  # # Re order tmp df cols.
-  # tmp.df <- tmp.df[c("gene","genenames","gene.chr", "gene.s1", "gene.s2",
-  #                    "snps", "snp.chr", "snp.pos", "statistic","pvalue",
-  #                    "FDR","beta","genotype","t.interval","origin")]
-  #
-  # # Rename colnames.
-  # colnames(tmp.df) <- c("gene", "genenames", "gene.chr", "gene.s1",
-  #                       "gene.s2", "snps", "snp.chr", "snp.pos", "statistic",
-  #                       "pvalue", "FDR", "beta", "minor_major","t.interval","origin")
-  # Return tmp df.
+  colnames(result) <- c("gene", "snps", "statistic", "pvalue", "FDR", "beta", "alleles (mi/mj)", "snps.chr", "snps.pos", "gene.chr", "gene.start", "gene.end")
+  # print("************** genes IDs *************")
+  # print(result)
+
+  # Gene Names -------------
+  # Set keys
+  setkey(result, gene)
+  setkey(geneNames, gene_id)
+
+  result <- merge(result, geneNames, all.x = TRUE, by.x = "gene", by.y = "gene_id")
+  # print("************** genes names *************")
+  # print(result)
+
+  # Re order tmp df cols.
+  tmp.df <- result[,c("gene","gene_name","gene.chr", "gene.start", "gene.end",
+                      "snps", "snps.chr", "snps.pos", "alleles (mi/mj)", "statistic",
+                      "FDR","beta", "pvalue")]
+  # print(tmp.df)
+
+  # Return tmp df -------------
   return(tmp.df)
 }

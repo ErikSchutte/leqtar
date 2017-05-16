@@ -32,6 +32,7 @@ Collate:
     'leqtar_genotypes_to_frequencies.R'
     'leqtar_process_files.R'
     'leqtar_results.R'
+    'leqtar_trityper_to_text.R'
 Suggests: 
     testthat,
     rprojroot
