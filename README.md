@@ -16,9 +16,9 @@ Once the package is installed you can load it using `library(leqtar)`.
 
 ## 2. Data
 
-I expect the user to be ignorant of the required steps in acquiring genotype and phenotype data. Supposidly you know what you are doing,
-the phenotype data can be derived from aligning Fastq files with HISAT2 or STAR. Resulting BAM files can be counted with HTSeq or Feature counts.
-Raw phenotype data is now availble, but do note that you probably have to normalize this data first. You can either just do a simple log transformation or a Variance Stabilizing Transformation (VST).
+I expect the user to have executed the required steps in acquiring genotype and phenotype data, or having deliverable data that is directly usable. 
+The phenotype data can be derived from aligning Fastq files with HISAT2 or STAR. Resulting BAM files can be counted with HTSeq or Feature counts.
+After counting the reads, you now have raw phenotype data availble, but do note that you probably have to normalize this data first. You can either just do a simple log transformation or a Variance Stabilizing Transformation (VST).
 I would refer to `?DESeq2` for VST and the log transformation is in the basic R packages.
 
 Genotype data can be anything from dosage files to literal genotypes i.e. 'AA/AT/TT'.
@@ -30,9 +30,9 @@ Let's define some usage scenario's before we get started, the Leqtar library pro
 has been tested using assocations between cytokines and genotypes and gene expression and genotypes, being cytokine QTLs and expression QTLs respectively.
 
 When you load leqtar with `library(leqtar)` three data sets are immediatly availble for use.
-These are `genotype_test_data.RData`, `expression_test_data.RData` and `covariate_test_data.RData`.
+These are `genotype_test_data.RData`, `genotype_test_locations.RData`, `phenotype_test_data.RData`, `phenotype_test_locations.RData` and `covariate_test_data.RData`.
 Because these are included in the package they are automatically loaded. But don't worry! You don't need to transform any of your data.
-Leqtar accepts a multitude of input. Data objects, RData files, .csv files, .tsv files, .txt files and .xls files are all supported!
+Leqtar accepts a multitude of input types. Data objects, RData files, .csv files, .tsv files, .txt files and .xls files are all supported!
 
 ### 3.1 Examples - Basic analysis
 
@@ -42,11 +42,12 @@ To do this we simply just call the following little script.
 ```
 library(leqtar)
 
-leqtar(genotypeFile = genotype_test_data, phenotypeFile = phenotype_test_data, covariateFile = covariate_test_data,
-       run_name = "test01")
+leqtar(run_name = "test01", genotypeFile = genotype_test_data, genotypePositionFile = genotype_test_locations,
+       phenotypeFile = phenotype_test_data, phenotypePositionFile = phenotype_test_locations, useModel = 'linear',
+       covariateFile = covariate_test_data, genoToFreq = T, forceRun = T)
 ```
 
-It's as easy as that. Please do note that the genotypeFile, expressionFile and run_name are required parameters. For more info see `?leqtar`.
+It's as easy as that. Please note that the genotypeFile, genotypePositionFile, phenotypeFile, phenotypePositionFile and run_name are required parameters. For more info see `?leqtar`.
 
 When the option `output_dir` is not given, leqtar will automatically store the output in your current working directory. To see what your current working directory is in R,
 you can enter `getwd()` in the terminal or in RStudio's terminal.
