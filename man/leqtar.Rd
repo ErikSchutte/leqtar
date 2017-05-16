@@ -4,25 +4,27 @@
 \alias{leqtar}
 \title{Leqtar}
 \usage{
-leqtar(run_name = NULL, genotypeFile = NULL, genotypePositionFile = NULL,
-  phenotypeFile = NULL, phenotypePositionFile = NULL, useModel = "linear",
-  covariateFile = NULL, output_dir = NULL, genoToFreq = FALSE,
-  forceRun = FALSE)
+leqtar(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL,
+  useModel = "linear", genotypePositionFile = NULL,
+  phenotypePositionFile = NULL, covariateFile = NULL, geneNames = NULL,
+  output_dir = NULL, genoToFreq = FALSE, forceRun = FALSE)
 }
 \arguments{
 \item{run_name}{[REQUIRED] - A name that will be used for the current 'run'. This name has to be unique to perserve data, if you want to overwrite a run see 'forceRun'.}
 
 \item{genotypeFile}{[REQUIRED] - A Genotype file. SNP names are expected as colnames and sample names as rownames.}
 
-\item{genotypePositionFile}{[REQUIRED] - A file containing the positions for each SNP. The colnames are 'snp', 'chr' and    'pos'.}
-
 \item{phenotypeFile}{[REQUIRED] - A Phenotype file. Sample names are expected as colnames and stimulations/genes as rownames.}
-
-\item{phenotypePositionFile}{[REQUIRED] - A file containing the positions for each gene.}
 
 \item{useModel}{[REQUIRED] - A model used for QTL analysis. This can be 'linear', 'anova' or 'linear_cross'. This defaults to the 'linear' model.}
 
+\item{genotypePositionFile}{[OPTIONAL] - A file containing the positions for each SNP. The colnames are 'snp', 'chr' and    'pos'.}
+
+\item{phenotypePositionFile}{[OPTIONAL] - A file containing the positions for each gene.}
+
 \item{covariateFile}{[OPTIONAL] - A Covariate file containing covariates. Sample names are expected as colnames and covariates as rownames.}
+
+\item{geneNames}{[OPTIONAL] - A file containing the gene names that corrospond to Ensemble ID's or any other ID.}
 
 \item{output_dir}{[OPTIONAL] - A relative path from your current working directory or an absolute path to a specific directory. The results will be stored in this location. This defaults to your current working directory.}
 

@@ -3,71 +3,51 @@
 #' Generates test data files, mainly for debugging and testing.
 generate_test_data <- function() {
 
-  test_sample_names <- lapply(seq(101, 300, 1), function(i) {
+  # Create sample names
+  test_sample_names <- lapply(seq(1, 30, 1), function(i) {
     paste("sample", i, sep="")
   })
-  test_snp_names <- lapply(seq(101, 600, 1), function(i) {
-    paste("rs00000", i, sep="")
-  })
-  test_gene_names <- lapply(seq(1001, 6000, 1), function(i) {
-    paste("ENSG0000", i, sep="")
+
+  # Load default data.
+  phpo <- leqtar::gencode_position
+  gepo <- leqtar::gepo
+
+  #Genrate genotype data.
+  snps <- sample(gepo$snp, 30)
+  snps_geno <- sapply(snps, function(snp) {
+    pattern = stringi::stri_rand_strings(1, 2, pattern = "[ACTG]")
+    data.frame(snp=stringi::stri_rand_strings(30, 2, pattern = paste("[",pattern,"]", sep="") ) )
   })
 
-  return( list( test_sample_names=unlist(test_sample_names),
-                test_snp_names=unlist(test_snp_names),
-                test_gene_names=unlist(test_gene_names) ) )
+  genotype_test_data <- t(data.frame(snps_geno))
+  colnames(genotype_test_data) <- test_sample_names
+  rownames(genotype_test_data) <- snps
+  genotype_test_locations <- gepo[which(gepo$snp %in% snps),]
+  colnames(genotype_test_locations) <- c("snps", "chr", "pos")
+
+  # Generate phenotype data.
+  phenotype_genes <- sample(phpo$geneid, 50)
+  phenotype_test_data <- matrix(rbinom(10*300, 10, .5), ncol=30, nrow=50)
+  rownames(phenotype_test_data) <- phenotype_genes
+  colnames(phenotype_test_data) <- test_sample_names
+  phenotype_test_locations <- phpo[which(phpo$geneid %in% phenotype_genes),]
+
+  # Generate covariates.
+  covariate_test_data <- t(data.frame( replicate(30, sample(18:75, 1, rep=T) ), replicate(30, sample(0:1, 1, rep=T) ) ))
+  colnames(covariate_test_data) <- test_sample_names
+  rownames(covariate_test_data) <- c("age", "gender")
+
+  # Save data.
+  devtools::use_data(genotype_test_data, overwrite = T)
+  devtools::use_data(genotype_test_locations, overwrite = T)
+  devtools::use_data(phenotype_test_data, overwrite = T)
+  devtools::use_data(phenotype_test_locations, overwrite = T)
+  devtools::use_data(covariate_test_data, overwrite = T)
+  # save(genotype_test_data, file="~/git/leqtar/data/genotype_test_data.RData", compress = "xz")
+  # save(phenotype_test_data, file="~/git/leqtar/data/phenotype_test_data.RData", compress = "xz")
+  # save(covariate_test_data, file="~/git/leqtar/data/covariate_test_data.RData", compress = "xz")
+  # save(genotype_test_locations, file="~/git/leqtar/data/genotype_test_locations.RData", compress = "xz")
+  # save(phenotype_test_locations, file="~/git/leqtar/data/phenotype_test_locations.RData", compress = "xz")
+
+
 }
-
-# Generate samples, snps and genes.
-test_cases <- generate_test_data()
-
-
-# Genrate genotype data.
-snps_geno <- sapply(test_cases$test_snp_names, function(snp) {
-  pattern = stringi::stri_rand_strings(1, 2, pattern = "[ACTG]")
-  data.frame(snp=stringi::stri_rand_strings(200, 2, pattern = paste("[",pattern,"]", sep="") ) )
-})
-
-genotype_test_data <- t(data.frame(snps_geno))
-colnames(genotype_test_data) <- test_cases$test_sample_names
-rownames(genotype_test_data) <- test_cases$test_snp_names
-# dim(genotype_test_data)
-# length(test_cases$test_snp_names)
-# length(test_cases$test_sample_names)
-# head(genotype_test_data)
-
-# Generate phenotype data.
-phenotype_test_data <- matrix(rbinom(10*1000, 3000, .5), ncol=200, nrow=5000)
-rownames(phenotype_test_data) <- test_cases$test_gene_names
-colnames(phenotype_test_data) <- test_cases$test_sample_names
-# head(phenotype_test_data)
-# tail(phenotype_test_data)
-# plot(density(phenotype_test_data))
-
-# Generate covariates.
-covariate_test_data <- t(data.frame( replicate(200, sample(18:75, 1, rep=T) ), replicate(200, sample(0:1, 1, rep=T) ) ))
-colnames(covariate_test_data) <- test_cases$test_sample_names
-rownames(covariate_test_data) <- c("age", "gender")
-# head(covariate_test_data)
-
-# Generate genotype position file.
-pos <- round( seq( from = 1, to = 100000, length.out = 500 ) )
-chr <- sort( rep_len( seq( from = 1, to = 22 ) , 500) )
-genotype_test_locations <- data.frame( snp = test_cases$test_snp_names,
-                                       chr = chr,
-                                       pos = pos)
-# Generate phenotype position file.
-s1 <- round( seq( from = 1, to = 4600000000, length.out = 5000 ) )
-s2 <- round( seq( from = 4000, to = 4600000000, length.out = 5000 ) )
-chr <- sort( rep_len( seq( from = 1, to = 22 ) , 5000) )
-phenotype_test_locations <- data.frame( geneid = test_cases$test_gene_names,
-                                        chr = chr,
-                                        s1 = s1,
-                                        s2 = s2)
-
-# Save data.
-# save(genotype_test_data, file="~/git/leqtar/data/genotype_test_data.RData", compress = "xz")
-# save(phenotype_test_data, file="~/git/leqtar/data/phenotype_test_data.RData", compress = "xz")
-# save(covariate_test_data, file="~/git/leqtar/data/covariate_test_data.RData", compress = "xz")
-# save(genotype_test_locations, file="~/git/leqtar/data/genotype_test_locations.RData", compress = "xz")
-# save(phenotype_test_locations, file="~/git/leqtar/data/phenotype_test_locations.RData", compress = "xz")

@@ -4,10 +4,12 @@
 \alias{leqtar_create_genotype_boxplots}
 \title{leqtar_create_genotype_boxplots}
 \usage{
-leqtar_create_genotype_boxplots(output_data, output_img)
+leqtar_create_genotype_boxplots(arguments, output_data, output_img)
 }
 \arguments{
-\item{output_data}{the folder containing the output from leqtar_analysis}
+\item{arguments}{the processed input arguments.}
+
+\item{output_data}{the folder containing the output from leqtar_analysis.}
 
 \item{output_img}{the folder whre genotype boxplots should go. Note it contains subfolders for manhattan plots and for genotype boxplots.}
 }

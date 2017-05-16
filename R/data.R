@@ -62,3 +62,39 @@
 #'   ...
 #' }
 "covariate_test_data"
+
+#' Gencode gene id's and gene names.
+#'
+#' This data set contains a column with gencode gene ids and gencode gene names.
+#'
+#' @format A data frame with 60252 rows and 2 variables
+#' \describe{
+#'   \item{gene_id}{Gencode gene id's.}
+#'   \item{gene_name}{Corrosponding gene name.}
+#' }
+"gencode_names"
+
+#' Gene positions.
+#'
+#' This data set contain the positions for each gene id on the genome.
+#'
+#' @format A data frame with 60252 rows ans 4 variables
+#' \describe{
+#'   \item{geneid}{The Id's.}
+#'   \item{chr}{located on chromosome .. .}
+#'   \item{s1}{start position of the gene.}
+#'   \item{s2}{stop position of the gene.}
+#' }
+"gencode_position"
+
+#' Genotype positions.
+#'
+#' This data set contains the positions for each SNP.
+#'
+#' @format A data frame with 5493617 rows and 3 variables.
+#' \describe{
+#'   \item{snp}{The rs id for SNPs.}
+#'   \item{chr}{The chromosome location.}
+#'   \item{pos}{The position on the genomte.}
+#' }
+"gepo"

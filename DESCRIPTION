@@ -1,7 +1,7 @@
 Package: leqtar
 Type: Package
 Title: Linear eQTL analysis in R
-Version: 0.1.0
+Version: 0.1.1
 Author: Erik Schutte
 Maintainer: Erik Schutte <schutte.erik@hotmail.com>
 Description: Performs Linear regression analysis on genotype and expression data to find the association between both.
@@ -15,7 +15,10 @@ Imports:
     stringr,
     gdata,
     MatrixEQTL,
-    gtools
+    gtools,
+    data.table,
+    ggplot2,
+    reshape2
 Collate: 
     'data.R'
     'generate_test_data.R'
@@ -29,6 +32,7 @@ Collate:
     'leqtar_genotypes_to_frequencies.R'
     'leqtar_process_files.R'
     'leqtar_results.R'
+    'leqtar_trityper_to_text.R'
 Suggests: 
     testthat,
     rprojroot
