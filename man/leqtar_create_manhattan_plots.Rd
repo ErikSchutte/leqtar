@@ -4,7 +4,14 @@
 \alias{leqtar_create_manhattan_plots}
 \title{leqtar_create_manhattan_plots}
 \usage{
-leqtar_create_manhattan_plots()
+leqtar_create_manhattan_plots(arguments)
+}
+\arguments{
+\item{arguments}{the processed input arguments.}
+
+\item{output_data}{the folder containing the output from leqtar_analysis.}
+
+\item{output_img}{the folder whre genotype boxplots should go. Note it contains subfolders for manhattan plots and for genotype boxplots.}
 }
 \description{
 Creates manhattan plots from the data file produced by leqtar_analysis.

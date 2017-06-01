@@ -4,20 +4,23 @@
 #' Using the output from leqtar_analysis this function will try to create genotype boxplots for the top x associations found by Matrix eQTL.
 #'
 #' @param arguments the processed input arguments.
-#' @param output_data the folder containing the output from leqtar_analysis.
-#' @param output_img the folder whre genotype boxplots should go. Note it contains subfolders for manhattan plots and for genotype boxplots.
-#' @param output_tbl the folder where the data tables should go.
 #' @importFrom "gtools" "mixedorder"
 #' @importFrom "gtools" "mixedsort"
 #' @import "ggplot2"
 #' @importFrom "reshape2" "melt"
 #' @importFrom "stringr" "str_split"
-leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img, output_tbl) {
+#' @export
+leqtar_create_genotype_boxplots <- function(arguments) {
 
   message("[INFO] ----------#----------")
   message("[INFO] Creating genotype boxplots..")
   message("[INFO] ----------#----------")
 
+  # Set paths.
+  output_dir <- arguments$output
+  output_data <- file.path( output_dir, "data", fsep = .Platform$file.sep)
+  output_img <- file.path( output_dir, "images", fsep = .Platform$file.sep)
+  output_tbl <- file.path( output_dir, "tables", fsep = .Platform$file.sep)
   # Get files.
   output <- list.files( file.path( output_data ), pattern = "*.R[Dd]{1}ata" )
 
@@ -132,116 +135,122 @@ leqtar_create_genotype_boxplots <- function(arguments, output_data, output_img, 
       } else {
         genotype.levels <- levels(df.melt$genotypes.value)
       }
+      print(genotype.levels)
+      if ( !is.null(arguments$genotypeUnconvertedData) ) {
+        major.allele = strsplit(as.character(qtl$alleles),"_")[[1]][2]
+        genotype.order <- c()
+        # print(major.allele)
 
-      major.allele = strsplit(as.character(qtl$`alleles..mi.mj.`),"_")[[1]][2]
-      genotype.order <- c()
-      # print(major.allele)
+        if ( length(genotype.levels) == 2 ) { # Only 2 levels for genotypes.
 
-      if ( length(genotype.levels) == 2 ) { # Only 2 levels for genotypes.
+          one <- strsplit(genotype.levels,"")[[1]] # first level
+          two <- strsplit(genotype.levels,"")[[2]] # second level
 
-        one <- strsplit(genotype.levels,"")[[1]] # first level
-        two <- strsplit(genotype.levels,"")[[2]] # second level
+          if (major.allele == one[1] && major.allele == one[2]) { # first level is homozygous major allele.
+            # print("one is major")
+            major = genotype.levels[1]
+          } else if (major.allele == one[1] && major.allele != one[2] | major.allele != one[1] && major.allele == one[2]) { # first level is heteryzygous
+            # print("one is hetero")
+            heter = genotype.levels[1]
+            genotype.order <- c(genotype.order, one)
+          } else {
+            print("WARNING: Third genotype should not exists here.")
+          }
 
-        if (major.allele == one[1] && major.allele == one[2]) { # first level is homozygous major allele.
-          # print("one is major")
-          major = genotype.levels[1]
-        } else if (major.allele == one[1] && major.allele != one[2] | major.allele != one[1] && major.allele == one[2]) { # first level is heteryzygous
-          # print("one is hetero")
-          heter = genotype.levels[1]
-          genotype.order <- c(genotype.order, one)
-        } else {
-          print("WARNING: Third genotype should not exists here.")
+          if (major.allele == two[1] && major.allele == two[2]) { # first level is homozygous major allele.
+            # print("two is major")
+            major = genotype.levels[2]
+          } else if (major.allele == two[1] && major.allele != two[2] | major.allele != two[1] && major.allele == two[2]) { # first level is heteryzygous
+            # print("two is heter")
+            heter = genotype.levels[2]
+          } else {
+            print("WARNING: Third genotype should not exists here.")
+          }
+
+          genotype.order <- c(major, heter)
+
+        } else { # 3 or 4 levels for genotypes.
+          # print(genotype.levels)
+
+          one <- strsplit(genotype.levels,"")[[1]] # first level
+          two <- strsplit(genotype.levels,"")[[2]] # second level
+          three <- strsplit(genotype.levels,"")[[3]] #third level
+          if (major.allele == one[1] && major.allele == one[2]) { # first level is major allele.
+            # print("one is major")
+            major = genotype.levels[1]
+          } else if (major.allele == one[1] && major.allele != one[2] | major.allele != one[1] && major.allele == one[2]) { # first level is heteryzygous
+            # print("one is hetero")
+            heter = genotype.levels[1]
+            genotype.order <- c(genotype.order, one)
+          } else {
+            # print("one is minor")
+            minor = genotype.levels[1]
+          }
+
+          if (major.allele == two[1] && major.allele == two[2]) { # first level is homozygous major allele.
+            # print("two is major")
+            major = genotype.levels[2]
+          } else if (major.allele == two[1] && major.allele != two[2] | major.allele != two[1] && major.allele == two[2]) { # first level is heteryzygous
+            # print("two is heter")
+            heter = genotype.levels[2]
+          } else {
+            minor = genotype.levels[2]
+          }
+
+          if (major.allele == three[1] && major.allele == three[2]) { # first level is homozygous major allele.
+            # print("three is major")
+            major = genotype.levels[3]
+          } else if (major.allele == three[1] && major.allele != three[2] | major.allele != three[1] && major.allele == three[2]) { # first level is heteryzygous
+            # print("three is heter")
+            heter = genotype.levels[3]
+          } else {
+            minor = genotype.levels[3]
+          }
+
+          genotype.order <- c(major, heter, minor)
         }
 
-        if (major.allele == two[1] && major.allele == two[2]) { # first level is homozygous major allele.
-          # print("two is major")
-          major = genotype.levels[2]
-        } else if (major.allele == two[1] && major.allele != two[2] | major.allele != two[1] && major.allele == two[2]) { # first level is heteryzygous
-          # print("two is heter")
-          heter = genotype.levels[2]
-        } else {
-          print("WARNING: Third genotype should not exists here.")
-        }
+        # Order the factor levels for the genotypes.
+        df.melt$genotypes.value <- factor(df.melt$genotypes.value, levels=genotype.order)
 
-        genotype.order <- c(major, heter)
+        # Order data on factor levels.
+        # df.melt <- df.melt[order(df.melt$timepoints),]
+        df.melt <- df.melt[order(df.melt$sample),]
 
-      } else { # 3 or 4 levels for genotypes.
-        # print(genotype.levels)
+        # Save ggplot in variable and plot.
+        mi <- min( df.melt$expression ) - 1
+        ma <- max(df.melt$expression ) + 1
+        p <- ggplot(data=df.melt, aes(x=genotypes.value, y=expression, group=genotypes.value) ) +
+          geom_boxplot(aes( fill=genotypes.value), outlier.shape=NA ) +
+          geom_point( position=position_jitter(width=0.15),colour = "darkgrey") +
+          coord_cartesian( ylim = c( mi,ma ) ) +
+          ggtitle( paste(qtl$gene_name, " - ", qtl$snps, sep = ""),
+                   subtitle = paste( "P-value: ", qtl$pvalue ) ) +
+          theme( plot.title = element_text( size = rel(1.6), hjust = 0.5 ),
+                 plot.subtitle = element_text(size = rel(1), hjust = 0.5 ) ) +
+          xlab(paste("Genotypes",sep="")) + ylab("Norm. read count")
+        # if ( f.type != "individual" ) {
+        #   p + scale_fill_discrete( name="Genotypes",
+        #                            labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value )/4, ")", sep ="") ) +
+        #     facet_wrap( ~ timepoints, scales="free")
+        # } else {
+        p + scale_fill_discrete( name="Genotypes",
+                                 labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value ), ")", sep ="") )
+        # }
 
-        one <- strsplit(genotype.levels,"")[[1]] # first level
-        two <- strsplit(genotype.levels,"")[[2]] # second level
-        three <- strsplit(genotype.levels,"")[[3]] #third level
-        if (major.allele == one[1] && major.allele == one[2]) { # first level is major allele.
-          # print("one is major")
-          major = genotype.levels[1]
-        } else if (major.allele == one[1] && major.allele != one[2] | major.allele != one[1] && major.allele == one[2]) { # first level is heteryzygous
-          # print("one is hetero")
-          heter = genotype.levels[1]
-          genotype.order <- c(genotype.order, one)
-        } else {
-          # print("one is minor")
-          minor = genotype.levels[1]
-        }
+        suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene_name, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
+      } else {
 
-        if (major.allele == two[1] && major.allele == two[2]) { # first level is homozygous major allele.
-          # print("two is major")
-          major = genotype.levels[2]
-        } else if (major.allele == two[1] && major.allele != two[2] | major.allele != two[1] && major.allele == two[2]) { # first level is heteryzygous
-          # print("two is heter")
-          heter = genotype.levels[2]
-        } else {
-          minor = genotype.levels[2]
-        }
-
-        if (major.allele == three[1] && major.allele == three[2]) { # first level is homozygous major allele.
-          # print("three is major")
-          major = genotype.levels[3]
-        } else if (major.allele == three[1] && major.allele != three[2] | major.allele != three[1] && major.allele == three[2]) { # first level is heteryzygous
-          # print("three is heter")
-          heter = genotype.levels[3]
-        } else {
-          minor = genotype.levels[3]
-        }
-
-        genotype.order <- c(major, heter, minor)
       }
 
-      # Order the factor levels for the genotypes.
-      df.melt$genotypes.value <- factor(df.melt$genotypes.value, levels=genotype.order)
 
-      # Order data on factor levels.
-      # df.melt <- df.melt[order(df.melt$timepoints),]
-      df.melt <- df.melt[order(df.melt$sample),]
-
-      # Save ggplot in variable and plot.
-      mi <- min( df.melt$expression ) - 1
-      ma <- max(df.melt$expression ) + 1
-      p <- ggplot(data=df.melt, aes(x=genotypes.value, y=expression, group=genotypes.value) ) +
-        geom_boxplot(aes( fill=genotypes.value), outlier.shape=NA ) +
-        geom_point( position=position_jitter(width=0.15),colour = "darkgrey") +
-        coord_cartesian( ylim = c( mi,ma ) ) +
-        ggtitle( paste(qtl$gene_name, " - ", qtl$snps, sep = ""),
-                 subtitle = paste( "P-value: ", qtl$pvalue ) ) +
-        theme( plot.title = element_text( size = rel(1.6), hjust = 0.5 ),
-               plot.subtitle = element_text(size = rel(1), hjust = 0.5 ) ) +
-        xlab(paste("Genotypes",sep="")) + ylab("Norm. read count")
-      # if ( f.type != "individual" ) {
-      #   p + scale_fill_discrete( name="Genotypes",
-      #                            labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value )/4, ")", sep ="") ) +
-      #     facet_wrap( ~ timepoints, scales="free")
-      # } else {
-      p + scale_fill_discrete( name="Genotypes",
-                               labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value ), ")", sep ="") )
-      # }
-
-      suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene_name, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
     })
 
 
     # Save result tables.
     message("[INFO] Saving result tables..")
     write.table(qtls.05, file = paste(output_tbl, "/detected_qtls_0.05.tsv", sep = ""), sep="\t", quote = F, row.names = F)
-    write.table(qtls, file = paste(output_tbl, "/detected_qtls.tsv", sep = ""), sep="\t", quote = F, row.names = F)
+    #write.table(qtls, file = paste(output_tbl, "/detected_qtls.tsv", sep = ""), sep="\t", quote = F, row.names = F)
 
     message("[INFO] ----------#----------")
     message("[INFO] Creating genotype boxplots.. OK")
@@ -305,65 +314,103 @@ prepare_df_qtls <- function(qtl, arguments) {
   #Set temp df.
   tmp.df <- NULL
 
+  # Col order boolean
+  colOrder <- c(0, 0, 0)
   # Data tables ------------
   # Convert to data.tables
   qtl <-  as.data.table(qtl)
-  snps <- cbind.data.frame(snps=rownames(arguments$genotypeUnconvertedData), arguments$genotypeUnconvertedData)
-  snps <- as.data.table( snps )
-  genotype.loc <- as.data.table( arguments$genotypePositionData )
-  phenotype.loc <- as.data.table( arguments$phenotypePositionData )
   if ( !is.null(arguments$geneNames ) ) {
     geneNames <- as.data.table( arguments$geneNames )
   }
 
-  # Minor alleles ------------
-  # Set keys for qtls and for snps.
-  setkey(qtl, snps)
-  setkey(snps, snps)
-
-  # Subset the snps data.frame before the join.
-  cols <- c("snps", "MAF")
-  snps <- snps[, cols, with=F]
-  result <- merge(qtl,snps, all.x=TRUE)
-  # print("******* minor_alleles ********")
-  # print(result)
-
   # Snp positions -------------
-  # Set keys for qtls and for snps.
-  setkey(result, snps)
-  setkey(genotype.loc, snps)
+  if ( !is.null(arguments$genotypePositionData) ) {
+    # If genotype.location file is given, add it to the table.
+    genotype.loc <- as.data.table( arguments$genotypePositionData )
 
-  # Subset the snps data.frame before the join.
-  result <- merge(result, genotype.loc, all.x=TRUE, by.x = "snps", by.y = "snps")
-  colnames(result) <- c("snps", "gene", "statistic", "pvalue", "FDR", "beta", "alleles (mi/mj)", "snps.chr", "snps.pos")
-  # print("******* snps ********")
-  # print(result)
+    # Create keys + merge
+    setkey(qtl, snps)
+    setkey(genotype.loc, snps)
+    colNames <- colnames(qtl)
+    qtl <- merge(qtl, genotype.loc, all.x=TRUE, by.x = "snps", by.y = "snps")
+    colnames(qtl) <- c(colNames, "snps.chr", "snps.pos")
+    # print("******* snps ********")
+    # print(qtl)
+    colOrder[1] <- 1
+  }
 
   # Gene IDs -------------
-  # Set keys
-  setkey(result, gene)
-  setkey(phenotype.loc, geneid)
+  if ( !is.null(arguments$phenotypePositionData) ) {
+    # If phenotype.location file is given, add it to the table.
+    phenotype.loc <- as.data.table( arguments$phenotypePositionData )
 
-  result <- merge(result, phenotype.loc, all.x = TRUE, by.x = "gene", by.y = "geneid")
-  colnames(result) <- c("gene", "snps", "statistic", "pvalue", "FDR", "beta", "alleles (mi/mj)", "snps.chr", "snps.pos", "gene.chr", "gene.start", "gene.end")
-  # print("************** genes IDs *************")
-  # print(result)
+    # Create keys + merge
+    setkey(qtl, gene)
+    setkey(phenotype.loc, geneid)
+    colNames <- colnames(qtl)
+    qtl <- merge(qtl, phenotype.loc, all.x = TRUE, by.x = "gene", by.y = "geneid")
+    colnames(qtl) <- c(colNames, "gene.chr", "gene.start", "gene.end")
+    colnames(qtl)[1] <- "gene"
+    colnames(qtl)[2] <- "snps"
+    # print("************** genes IDs *************")
+    # print(qtl)
 
-  # Gene Names -------------
-  # Set keys
-  setkey(result, gene)
-  setkey(geneNames, gene_id)
+    # Gene Names -------------
+    setkey(qtl, gene)
+    setkey(geneNames, gene_id)
 
-  result <- merge(result, geneNames, all.x = TRUE, by.x = "gene", by.y = "gene_id")
-  # print("************** genes names *************")
-  # print(result)
+    qtl <- merge(qtl, geneNames, all.x = TRUE, by.x = "gene", by.y = "gene_id")
+    # print("************** genes names *************")
+    # print(qtl)
+    colnames(qtl)[length(colnames(qtl))] <- "gene.name"
+    colOrder[2] <- 3
+  }
 
-  # Re order tmp df cols.
-  tmp.df <- result[,c("gene","gene_name","gene.chr", "gene.start", "gene.end",
-                      "snps", "snps.chr", "snps.pos", "alleles (mi/mj)", "statistic",
-                      "FDR","beta", "pvalue")]
-  # print(tmp.df)
+  # Minor alleles ------------
+  if ( !is.null( arguments$genotypeUnconvertedData) ) {
+    snps <- cbind.data.frame(snps=rownames(arguments$genotypeUnconvertedData), arguments$genotypeUnconvertedData)
+    snps <- as.data.table( snps )
+    cols <- c("snps", "MAF")
+    snps <- snps[, cols, with=F]
+    colnames(snps) <- c("snps", "alleles")
 
+    # Set keys for qtls and for snps.
+    setkey(qtl, snps)
+    setkey(snps, snps)
+
+    # Subset the snps data.frame before the join.
+    qtl <- merge(qtl, snps, all.x=TRUE)
+    # print("******* minor_alleles ********")
+    # print(qtl)
+    colOrder[3] <- 5
+  }
+  # else {
+  #   # Re order tmp df cols.
+  #   tmp.df <- result[,c("gene","gene_name","gene.chr", "gene.start", "gene.end",
+  #                       "snps", "snps.chr", "snps.pos", "statistic",
+  #                       "FDR","beta", "pvalue")]
+  # }
+
+  if ( sum(colOrder) == 0) {
+    stop("[STOP] Dev error, create an issue in github..")
+  } else if ( sum(colOrder) == 1 ) {
+    # Re order tmp df cols.
+    cols <- c("snps", "snps.chr", "snps.pos", "gene", "statistic", "pvalue", "FDR", "beta")
+  } else if ( sum(colOrder) == 3 ) {
+    cols <- c("snps", "gene", "gene.name", "gene.chr", "gene.start", "gene.end", "statistic", "pvalue", "FDR", "beta")
+  } else if ( sum(colOrder) == 5 ) {
+    cols <- c("snps", "alleles", "gene", "statistic", "pvalue", "FDR", "beta")
+  } else if ( sum(colOrder) == 4 ) {
+    cols <- c("snps", "snps.chr", "snps.pos", "gene", "gene.name", "gene.chr", "gene.start", "gene.end", "statistic", "pvalue", "FDR", "beta")
+  } else if ( sum(colOrder) == 6 ) {
+    cols <- c("snps", "snps.chr", "snps.pos", "alleles", "gene", "statistic", "pvalue", "FDR", "beta")
+  } else if ( sum(colOrder) == 8 ) {
+    cols <- c("snps", "alleles", "gene", "gene.name", "gene.chr", "gene.start", "gene.end",  "statistic", "pvalue", "FDR", "beta")
+  } else if ( sum(colOrder) == 9 ) {
+    cols <- c("snps", "snps.chr", "snps.pos", "alleles", "gene", "gene.name", "gene.chr", "gene.start", "gene.end", "statistic", "pvalue", "FDR", "beta")
+  }
+  tmp.df <- qtl[,cols, with=F]
+  print(head(tmp.df))
   # Return tmp df -------------
   return(tmp.df)
 }
