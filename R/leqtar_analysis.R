@@ -12,6 +12,7 @@
 #' @import "MatrixEQTL"
 leqtar_analysis <- function(arguments) {
   message("[INFO] Initializing linear regression analysis..")
+  message("[INFO] ----------#----------")
   # Settings ------
   # Cis window
   cisDist <- 5e5
@@ -94,9 +95,13 @@ leqtar_analysis <- function(arguments) {
   unlink(output_file_name)
 
   message("[INFO] Detected eQTLs: ", me$all$neqtls, " in ", unlist(me$time.in.sec[[1]]), " seconds..")
-
+  message("[INFO] ----------#----------")
+  message("[INFO] Initializing linear regression analysis OK..")
+  message("[INFO] ----------#----------")
+  message("[INFO] Saving results..")
   # Save output.
   run_name <- paste(arguments$run_name, ".Rdata", sep="")
   save(me, file= file.path( arguments$output, "data", run_name, fsep=.Platform$file.sep) )
   save(arguments, file=file.path( arguments$output, "data", "used_arguments.RData", fsep = .Platform$file.sep) )
+
 }

@@ -44,6 +44,8 @@ leqtar <- function(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL, u
           "\n[INFO] Package version ", build_version,
           "\n[INFO] This package was build on ", build_time)
 
+  # Runtime
+  start_leqtar <- Sys.time()
   # Processes arguments, returns a list with all arguments.
   arguments <- process_arguments(run_name, genotypeFile, genotypePositionFile, phenotypeFile, phenotypePositionFile,
                                  covariateFile, geneNames, useModel, output_dir, genoToFreq, forceRun)
@@ -54,7 +56,12 @@ leqtar <- function(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL, u
   # Parse data from the input files for analysis.
   leqtar_analysis(arguments)
 
+  # Runtime
+  end_leqtar <- Sys.time()
+
   # Return used settings.
+  message("[INFO] ----------#----------")
+  message("[INFO] Total run time: ", as.character(end_leqtar - start_leqtar) )
   message("[INFO] --------DONE!--------")
   return(arguments)
 
