@@ -305,10 +305,8 @@ leqtar_process_files <- function(arguments) {
   arguments$genotypePositionData <- genotype_position_content
   arguments$phenotypeData <- phenotype_file_content
   arguments$phenotypePositionData <- phenotype_position_content
+  arguments$covariatesData <- covariates_file_content
 
-  if ( !is.null(arguments$covariates) ) {
-    arguments$covariatesData <- covariates_file_content
-  }
   if ( arguments$genoToFreq == T ) {
     arguments$genotypeUnconvertedData <- genotype_file_content_unconverted
   }
