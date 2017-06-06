@@ -250,30 +250,41 @@ leqtar_process_files <- function(arguments) {
   message("[INFO] Checking column names additional files..")
 
   # Genotype Position Data -----
-  expected_genotypePosDataCols <- c("snps", "chr", "pos")
-  genotypePosDataCols <- colnames( arguments$genotypePositionData )
-  if ( length( genotypePosDataCols ) == length( expected_genotypePosDataCols ) ) {
-    if ( all( genotypePosDataCols == expected_genotypePosDataCols ) ) {
-      message("[INFO] Columns genotype position: OK..")
+  if ( !is.null(genotype_position_content) ) {
+    expected_genotypePosDataCols <- c("snps", "chr", "pos")
+    genotypePosDataCols <- colnames( arguments$genotypePositionData )
+    if ( length( genotypePosDataCols ) == length( expected_genotypePosDataCols ) ) {
+      if ( all( genotypePosDataCols == expected_genotypePosDataCols ) ) {
+        message("[INFO] Columns genotype position: OK..")
+      } else {
+        stop("[STOP] Please check the leqtar help, the column names of the genotype position file have to match 'snps chr pos'.." )
+      }
     } else {
-      stop("[STOP] Please check the leqtar help, the column names of the genotype position file have to match 'snps chr pos'.." )
+      stop("[STOP] Please check the leqtar help, there are either too many or too few columns in the genotype position file..",
+           "\n  \\___   Expected number of columns in the genotype position file: ", length( expected_genotypePosDataCols ),
+           "\n  \\___   Observed number of columns in the genotype position file: ", length( genotypePosDataCols ) )
+
     }
-  } else {
-    stop("[STOP] Please check the leqtar help, there are either too many or too few columns in the genotype position file..")
   }
 
+
   # Phenotype Position Data -----
-  expected_phenotypePosDataCols <- c("geneid", "chr", "s1", "s2")
-  phenotypePosDataCols <- colnames(arguments$phenotypePositionData)
-  if ( length( phenotypePosDataCols ) == length( expected_phenotypePosDataCols ) ) {
-    if ( all( phenotypePosDataCols == expected_phenotypePosDataCols ) ) {
-      message("[INFO] Columns phenotype position: OK..")
+  if ( !is.null(phenotype_position_content) ) {
+    expected_phenotypePosDataCols <- c("geneid", "chr", "s1", "s2")
+    phenotypePosDataCols <- colnames(arguments$phenotypePositionData)
+    if ( length( phenotypePosDataCols ) == length( expected_phenotypePosDataCols ) ) {
+      if ( all( phenotypePosDataCols == expected_phenotypePosDataCols ) ) {
+        message("[INFO] Columns phenotype position: OK..")
+      } else {
+        stop("[STOP] Please check the leqtar help, the column names of the phenotype position file have to match 'geneid chr s1 s2'.." )
+      }
     } else {
-      stop("[STOP] Please check the leqtar help, the column names of the phenotype position file have to match 'geneid chr s1 s2'.." )
+      stop("[STOP] Please check the leqtar help, there are either too many or too few columns in the phenotype position file..",
+           "\n  \\___   Expected number of columns in the phenotype position file: ", length( expected_phenotypePosDataCols ),
+           "\n  \\___   Observed number of columns in the phenotype position file: ", length( phenotypePosDataCols ) )
     }
-  } else {
-    stop("[STOP] Please check the leqtar help, there are either too many or too few columns in the phenotype position file..")
   }
+
 
 
   message("[INFO] Checking column names additional files OK..")
@@ -305,16 +316,21 @@ leqtar_process_files <- function(arguments) {
 #' @param name_argument variable name to specify genotype phenotype covariaties or w/e in the messages.
 #' @return If the path_argument is indeed given return the file content, else return the object.
 check_object_or_file <- function(path_argument, data_argument, name_argument) {
+  # If not required
+  if ( is.null(path_argument) & is.null(data_argument) ) {
+    message("[INFO] Not using ", name_argument, " argument..")
+    return( NULL )
+  }
   # Check if Object
-  if ( is.null(path_argument) ) {
+  else if ( is.null(path_argument) ) {
     if ( is.matrix(data_argument) | is.data.frame(data_argument) ) {
       message("[INFO] ", name_argument, " argument: Object..")
       file_content <- data_argument
       return( file_content )
     } else {
-      stop("[STOP] ", name_argument, " argument is not a matrix or a data.frame.. ")
+      message("[WARN] ", name_argument, " argument is not a matrix or a data.frame.. ")
     }
-    # Check if File
+  # Check if File
   } else {
 
     if ( is.null(data_argument) ) {
@@ -330,6 +346,8 @@ check_object_or_file <- function(path_argument, data_argument, name_argument) {
       stop("[STOP] Dev note: ", name_argument, " data and Genotype cannot both be assigned.")
     }
   }
+
+
 }
 
 # read_files function ---------------------------------------------

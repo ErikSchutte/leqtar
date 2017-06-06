@@ -4,16 +4,10 @@
 \alias{leqtar_create_genotype_boxplots}
 \title{leqtar_create_genotype_boxplots}
 \usage{
-leqtar_create_genotype_boxplots(arguments, output_data, output_img, output_tbl)
+leqtar_create_genotype_boxplots(arguments)
 }
 \arguments{
 \item{arguments}{the processed input arguments.}
-
-\item{output_data}{the folder containing the output from leqtar_analysis.}
-
-\item{output_img}{the folder whre genotype boxplots should go. Note it contains subfolders for manhattan plots and for genotype boxplots.}
-
-\item{output_tbl}{the folder where the data tables should go.}
 }
 \description{
 Using the output from leqtar_analysis this function will try to create genotype boxplots for the top x associations found by Matrix eQTL.

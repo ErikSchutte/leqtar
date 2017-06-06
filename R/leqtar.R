@@ -109,7 +109,7 @@ process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phen
 
   # Check if the genotype position file is provided/exists.
   if ( is.null(genotypePositionFile) ) {
-    stop("[STOP] No genotype position file provided, provide a genotype position file..")
+    message("[WARN] No genotype position file provided, provide a genotype position file..")
   } else if ( is.matrix(genotypePositionFile) | is.data.frame(genotypePositionFile) ) {
     arguments <- modifyList(arguments, list(genotypePositionData = genotypePositionFile) )
   } else {
@@ -135,7 +135,7 @@ process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phen
 
   # Check if the phenotype file is provided/exists.
   if ( is.null(phenotypePositionFile) ) {
-    stop("[STOP] No phenotype position file provided, provide a phenotype position file..")
+    message("[WARN] No phenotype position file provided, provide a phenotype position file..")
   } else if ( is.matrix(phenotypePositionFile) || is.data.frame(phenotypePositionFile) ) {
     arguments <- modifyList(arguments, list(phenotypePositionData = phenotypePositionFile) )
   } else {
