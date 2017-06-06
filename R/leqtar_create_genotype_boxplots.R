@@ -135,7 +135,7 @@ leqtar_create_genotype_boxplots <- function(arguments) {
       } else {
         genotype.levels <- levels(df.melt$genotypes.value)
       }
-      print(genotype.levels)
+      # print(genotype.levels)
       if ( !is.null(arguments$genotypeUnconvertedData) ) {
         major.allele = strsplit(as.character(qtl$alleles),"_")[[1]][2]
         genotype.order <- c()
@@ -240,7 +240,7 @@ leqtar_create_genotype_boxplots <- function(arguments) {
 
         suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene_name, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
       } else {
-
+        stop("[STOP] This is not yet implemented..")
       }
 
 
