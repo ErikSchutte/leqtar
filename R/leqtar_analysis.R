@@ -98,5 +98,5 @@ leqtar_analysis <- function(arguments) {
   # Save output.
   run_name <- paste(arguments$run_name, ".Rdata", sep="")
   save(me, file= file.path( arguments$output, "data", run_name, fsep=.Platform$file.sep) )
-
+  save(arguments, file=file.path( arguments$output, "data", "used_arguments.RData", fsep = .Platform$file.sep) )
 }
