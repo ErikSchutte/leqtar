@@ -34,12 +34,13 @@ leqtar_process_files <- function(arguments) {
   genotype_position_content <- check_object_or_file(arguments$genotypePosition, arguments$genotypePositionData, "Genotype positions")
 
   covariates_file_content <- check_object_or_file(arguments$covariates, arguments$covariatesData, "Covariates")
-
-  message("[INFO] Reading files OK..")
+  message("[INFO] ----------#----------")
+  message("[INFO] Processing Files OK..")
 
   # Check dimensions -------------------
   message("[INFO] ----------#----------")
   message("[INFO] Checking dimensions..")
+  message("[INFO] ----------#----------")
   dim_genotype <- dim(genotype_file_content)
   dim_phenotype <- dim(phenotype_file_content)
   warnings <- 0
@@ -66,6 +67,7 @@ leqtar_process_files <- function(arguments) {
       warnings <- warnings + 1
     }
   }
+  message("[INFO] ----------#----------")
   if ( warnings > 0 ) {
     message("[INFO] Checking dimensions OK with: ", as.character(warnings), " warning(s) ..")
   } else {
@@ -76,7 +78,7 @@ leqtar_process_files <- function(arguments) {
   # Changing genotypes to frequencies -------------------------
   message("[INFO] ----------#----------")
   message("[INFO] Checking genotype data..")
-
+  message("[INFO] ----------#----------")
   if ( class( as.vector(genotype_file_content[1,1]) ) == "character" && arguments$genoToFreq == F ) {
     stop("[STOP] Detected characters in genotype data. If you want leqtar to change them to\n  \\___   frequencies, set argument 'genoToFreq=T'..")
 
@@ -101,13 +103,14 @@ leqtar_process_files <- function(arguments) {
     stop("[STOP] Unexpected error, your genotype file is probably incorrect. If this is a persistent error,
          report the issue in the github issue tracker..")
   }
+  message("[INFO] ----------#----------")
   message("[INFO] Checking genotype data OK..")
 
 
   # Check column name order ---------------------------------
   message("[INFO] ----------#----------")
   message("[INFO] Checking sample names..")
-
+  message("[INFO] ----------#----------")
   # Bind 'covariates_samples'
   covariates_samples <- NULL
   genotype_samples <- colnames(genotype_file_content)
@@ -225,9 +228,12 @@ leqtar_process_files <- function(arguments) {
     }
   }
   message("[INFO] ----------#----------")
+  message("[INFO] Checking sample names OK..")
+  message("[INFO] ----------#----------")
 
   # Checking phenotype data -----------------
   message("[INFO] Checking phenotype data..")
+  message("[INFO] ----------#----------")
   if ( class( as.vector(phenotype_file_content[1,1]) ) == "character" ) {
     message("[WARN] Detected characters in phenotype data.\n\\___   Conversing to integers/numeric values..")
 
@@ -245,9 +251,11 @@ leqtar_process_files <- function(arguments) {
             "\n\\___   Number of NA's in phenotype data after conversion: ", numberOfNAAfter)
 
   }
+  message("[INFO] ----------#----------")
   message("[INFO] Checking phenotype data OK..")
   message("[INFO] ----------#----------")
-  message("[INFO] Checking column names additional files..")
+  message("[INFO] Checking additional files..")
+  message("[INFO] ----------#----------")
 
   # Genotype Position Data -----
   if ( !is.null(genotype_position_content) ) {
@@ -286,8 +294,8 @@ leqtar_process_files <- function(arguments) {
   }
 
 
-
-  message("[INFO] Checking column names additional files OK..")
+  message("[INFO] ----------#----------")
+  message("[INFO] Checking additional files OK..")
   message("[INFO] ----------#----------")
   message("[INFO] Processing files OK..")
   message("[INFO] ----------#----------")

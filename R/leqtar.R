@@ -38,7 +38,7 @@ cat("Building package", build_version, "on", build_time, "\n")
 leqtar <- function(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL, useModel = 'linear',
                     genotypePositionFile = NULL, phenotypePositionFile = NULL, covariateFile = NULL,
                    geneNames = NULL, output_dir = NULL,  genoToFreq = FALSE, forceRun = FALSE) {
-
+  message("[INFO] ----------#----------")
   message("[INFO] leqtar stands for Linear eQTL analysis in R",
           "\n[INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues",
           "\n[INFO] Package version ", build_version,
