@@ -43,7 +43,7 @@ leqtar_process_files <- function(arguments) {
   dim_genotype <- dim(genotype_file_content)
   dim_phenotype <- dim(phenotype_file_content)
   warnings <- 0
-  if ( !is.null(arguments$covariates) ) {
+  if ( !is.null(covariates_file_content) ) {
     dim_covariates <- dim(covariates_file_content)
 
     if (dim_genotype[2] != dim_covariates[2]) {
@@ -112,11 +112,11 @@ leqtar_process_files <- function(arguments) {
   covariates_samples <- NULL
   genotype_samples <- colnames(genotype_file_content)
   phenotype_samples <- colnames(phenotype_file_content)
-  if ( !is.null(arguments$covariates) ) {
+  if ( !is.null(covariates_file_content) ) {
     covariates_samples <- colnames(covariates_file_content)
   }
 
-  if ( !is.null(arguments$covariates) ) {
+  if ( !is.null(covariates_file_content) ) {
 
     if ( length(genotype_samples) == length(phenotype_samples) &&
          length(genotype_samples) == length(covariates_samples) ) {
