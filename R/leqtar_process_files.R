@@ -87,21 +87,26 @@ leqtar_process_files <- function(arguments) {
     sub_arguments <- leqtar_genotypes_to_frequencies(genotype_file_content)
     genotype_file_content <- sub_arguments$genotypeConverted
     genotype_file_content_unconverted <- sub_arguments$genotypeNotConverted
-    genotype_file_content <- filter_variants_by_groups(genotype_file_content)
+
   } else if ( class( as.vector(genotype_file_content[1,1]) )  == "integer" && arguments$genoToFreq == F ||
               class( as.vector(genotype_file_content[1,1]) )  == "numeric" && arguments$genoToFreq == F ) {
-    message("[INFO] Genotype conversion: ", as.character(arguments$genoToFreq), ", but genotypes already conversed..")
-    genotype_file_content <- filter_variants_by_groups(genotype_file_content)
+    message("[INFO] Genotype conversion: ", as.character(arguments$genoToFreq), ", but genotypes already numeric..")
 
   } else if ( class( as.vector(genotype_file_content[1,1]) )  == "integer" && arguments$genoToFreq == T ||
               class( as.vector(genotype_file_content[1,1]) )  == "numeric" && arguments$genoToFreq == T ) {
-    message("[INFO] Genotype conversion: ", as.character(arguments$genoToFreq), ", but genotypes already conversed..")
-    genotype_file_content <- filter_variants_by_groups(genotype_file_content)
+    message("[INFO] Genotype conversion: ", as.character(arguments$genoToFreq), ", but genotypes already numeric..")
+
   } else if ( class( as.vector(genotype_file_content[1,1]) ) == "factor" ) {
     stop("[STOP] Factor variables are not yet supported..")
   } else {
     stop("[STOP] Unexpected error, your genotype file is probably incorrect. If this is a persistent error,
          report the issue in the github issue tracker..")
+  }
+  if ( arguments$filterGenotypeData == T ) {
+    message("[INFO] Genotype filtering: ", as.character(arguments$filterGenotypeData), ", applying filter..")
+    genotype_file_content <- filter_variants_by_groups(genotype_file_content)
+  } else {
+    message("[INFO] Genotype filtering: ", as.character(arguments$filterGenotypeData), "..")
   }
   message("[INFO] ----------#----------")
   message("[INFO] Checking genotype data OK..")

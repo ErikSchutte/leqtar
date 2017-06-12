@@ -33,11 +33,13 @@ cat("Building package", build_version, "on", build_time, "\n")
 #' @param geneNames [OPTIONAL] - A file containing the gene names that corrospond to Ensemble ID's or any other ID.
 #' @param output_dir [OPTIONAL] - A relative path from your current working directory or an absolute path to a specific directory. The results will be stored in this location. This defaults to your current working directory.
 #' @param genoToFreq [OPTIONAL] - Turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis. The default is set to 'FALSE'.
+#' @param filterGenotypeData [OPTIONAL] - Filters genotype variants on genotype groups, recommended to apply such a filtering to the genotype data before hand if it is used multiple times.
 #' @param forceRun [OPTIONAL] - Normally Leqtar perserves data, by turning this to `TRUE` runs that already exist will be overwritten. The default is set to 'FALSE'.
 #' @note For a complete view of how to run and use Leqtar, please visit https://github.com/ErikSchutte/leqtar.
 leqtar <- function(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL, useModel = 'linear',
                     genotypePositionFile = NULL, phenotypePositionFile = NULL, covariateFile = NULL,
-                   geneNames = NULL, output_dir = NULL,  genoToFreq = FALSE, forceRun = FALSE) {
+                   geneNames = NULL, output_dir = NULL,  genoToFreq = FALSE, filterGenotypeData = FALSE,
+                   forceRun = FALSE) {
   message("[INFO] ----------#----------")
   message("[INFO] leqtar stands for Linear eQTL analysis in R",
           "\n[INFO] Thanks for using this package, if you find any bugs please report them on https://github.com/ErikSchutte/leqtar/issues",
@@ -48,7 +50,8 @@ leqtar <- function(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL, u
   start_leqtar <- Sys.time()
   # Processes arguments, returns a list with all arguments.
   arguments <- process_arguments(run_name, genotypeFile, genotypePositionFile, phenotypeFile, phenotypePositionFile,
-                                 covariateFile, geneNames, useModel, output_dir, genoToFreq, forceRun)
+                                 covariateFile, geneNames, useModel, output_dir, genoToFreq, filterGenotypeData,
+                                 forceRun)
 
   # Parse arguments to leqtar_analysis.
   arguments <- leqtar_process_files(arguments)
@@ -86,7 +89,8 @@ leqtar <- function(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL, u
 #' @importFrom "utils" "modifyList"
 #' @importFrom "stringr" "str_match"
 process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phenotypeFile, phenotypePositionFile,
-                              covariateFile, geneNames, useModel, output_dir, genoToFreq, forceRun) {
+                              covariateFile, geneNames, useModel, output_dir, genoToFreq, filterGenotypeData,
+                              forceRun) {
 
   message("[INFO] ----------#----------")
   message("[INFO] Processing arguments..")
@@ -95,7 +99,7 @@ process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phen
   arguments <- list(run_name = NULL, genotype = NULL, genotypePosition = NULL, genotypeData = NULL, genotypePositionData = NULL, genotypeUnconvertedData = NULL,
                     phenotype = NULL, phenotypePosition = NULL, phenotypeData = NULL, phenotypePositionData = NULL, covariates=NULL,
                     covariatesData = NULL, geneNames = NULL, useModel = NULL, output = NULL, genoToFreq = FALSE,
-                    forceRun = FALSE)
+                    filterGenotypeData = FALSE, forceRun = FALSE)
 
   if ( is.null(run_name) ) {
     stop("[STOP] A name for the current run is required, preferably a unique one. See '?leqtar' for 'run_name'..")
@@ -224,6 +228,17 @@ process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phen
     stop("[STOP] The flag 'genoToFreq' has to be a boolean..")
   }
   arguments <- modifyList( arguments, list(genoToFreq = genoToFreq) )
+
+  # Check if genotype data has to be filtered by genotype groups -----
+  if ( filterGenotypeData == F ) {
+    message("[INFO] Genotype filter: ", as.character(filterGenotypeData), " ..")
+  } else if ( filterGenotypeData == T ) {
+    message("[INFO] Genotype filter: ", as.character(filterGenotypeData), " ..")
+  } else {
+    stop("[STOP] The flag 'filterGenotypeData' has to be a boolean..")
+  }
+  arguments <- modifyList( arguments, list(filterGenotypeData = filterGenotypeData) )
+
   message("[INFO] ----------#----------")
   message("[INFO] Processing arguments OK..")
   message("[INFO] ----------#----------")
