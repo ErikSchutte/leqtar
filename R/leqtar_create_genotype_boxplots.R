@@ -22,7 +22,7 @@ leqtar_create_genotype_boxplots <- function(arguments) {
   output_img <- file.path( output_dir, "images", fsep = .Platform$file.sep)
   output_tbl <- file.path( output_dir, "tables", fsep = .Platform$file.sep)
   # Get files.
-  output <- list.files( file.path( output_data ), pattern = "*.R[Dd]{1}ata" )
+  output <- list.files( file.path( output_data ), pattern = paste0(arguments$run_name, ".R[Dd]{1}ata") )
 
   # Get result files.
   result_set <- lapply(output, function(result_file) {
@@ -80,7 +80,7 @@ leqtar_create_genotype_boxplots <- function(arguments) {
 
       # Position current gene in the expression file.
       gene.expression <- arguments$phenotypeData
-      gene.expression <- gene.expression[ which( rownames( gene.expression ) == qtl$gene ), ]
+      gene.expression <- gene.expression[ which( rownames( gene.expression ) == qtl$gene ), , drop =F]
 
       # if ( f.type != "individual" ) {
       #   gene.expression <- ge.gencode[ which( qtl$gene == rownames( ge.gencode ) ), ]
@@ -110,11 +110,13 @@ leqtar_create_genotype_boxplots <- function(arguments) {
       # } else {
       #   df.ge <- cbind.data.frame(df.ge, time=qtl$t.interval)
       # }
-
+      colnames(df.ge) <- gsub(colnames(df.ge), pattern = "X", replacement = "")
       df.ge.melt <- suppressMessages(melt(df.ge))
 
       # Set sample names.
-      df.ge.melt[,1] <- names(gene.expression)
+      if (length(names(gene.expression) > 0) ) {
+        df.ge.melt[,1] <- names(gene.expression)
+      }
 
       # Bind the dataframes together.
       df.melt <- cbind.data.frame(expression=df.ge.melt[,2],
@@ -224,7 +226,7 @@ leqtar_create_genotype_boxplots <- function(arguments) {
           geom_boxplot(aes( fill=genotypes.value), outlier.shape=NA ) +
           geom_point( position=position_jitter(width=0.15),colour = "darkgrey") +
           coord_cartesian( ylim = c( mi,ma ) ) +
-          ggtitle( paste(qtl$gene_name, " - ", qtl$snps, sep = ""),
+          ggtitle( paste(qtl$gene.name, " - ", qtl$snps, sep = ""),
                    subtitle = paste( "P-value: ", qtl$pvalue ) ) +
           theme( plot.title = element_text( size = rel(1.6), hjust = 0.5 ),
                  plot.subtitle = element_text(size = rel(1), hjust = 0.5 ) ) +
@@ -238,9 +240,22 @@ leqtar_create_genotype_boxplots <- function(arguments) {
                                  labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value ), ")", sep ="") )
         # }
 
-        suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene_name, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
+        suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene.name, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
       } else {
-        stop("[STOP] This is not yet implemented..")
+        df.melt <- cbind.data.frame(df.melt, rounded=round(df.melt$genotypes.value))
+        p <- ggplot(data=df.melt, aes(x=rounded, y=expression, group = rounded ) ) +
+          geom_boxplot(aes( fill=rounded), outlier.shape=NA) +
+          geom_point( position=position_jitter(width=0.15), colour = "darkgrey") +
+          coord_cartesian( ylim = c( (min(df.melt$expression) -1 ), (max(df.melt$expression) +1) ) ) +
+          ggtitle( paste( qtl$gene, " - ", qtl$snps, sep = ""),
+                   subtitle = paste( "P-value: ", qtl$pvalue ) ) +
+          theme( plot.title = element_text( size = rel(1.6), hjust = 0.5),
+                 plot.subtitle = element_text(size= rel(1), hjust = 0.5) ) +
+          xlab(paste("Rounded genotype dosages", sep = "") ) + ylab("Log2 cytokine levels")
+
+        p + scale_fill_continuous( breaks = as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ), name="Rounded genotypes",
+                                 labels=paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep ="") )
+        suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
       }
 
 
@@ -410,7 +425,7 @@ prepare_df_qtls <- function(qtl, arguments) {
     cols <- c("snps", "snps.chr", "snps.pos", "alleles", "gene", "gene.name", "gene.chr", "gene.start", "gene.end", "statistic", "pvalue", "FDR", "beta")
   }
   tmp.df <- qtl[,cols, with=F]
-  print(head(tmp.df))
+  # print(head(tmp.df))
   # Return tmp df -------------
   return(tmp.df)
 }

@@ -61,7 +61,9 @@ leqtar <- function(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL, u
 
   # Return used settings.
   message("[INFO] ----------#----------")
-  message("[INFO] Total run time: ", as.character(end_leqtar - start_leqtar) )
+
+  message("[INFO] Total run time: ")
+  print( round(end_leqtar - start_leqtar, 2) )
   message("[INFO] --------DONE!--------")
   return(arguments)
 

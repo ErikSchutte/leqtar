@@ -87,18 +87,18 @@ leqtar_process_files <- function(arguments) {
     sub_arguments <- leqtar_genotypes_to_frequencies(genotype_file_content)
     genotype_file_content <- sub_arguments$genotypeConverted
     genotype_file_content_unconverted <- sub_arguments$genotypeNotConverted
-
+    genotype_file_content <- filter_variants_by_groups(genotype_file_content)
   } else if ( class( as.vector(genotype_file_content[1,1]) )  == "integer" && arguments$genoToFreq == F ||
               class( as.vector(genotype_file_content[1,1]) )  == "numeric" && arguments$genoToFreq == F ) {
     message("[INFO] Genotype conversion: ", as.character(arguments$genoToFreq), ", but genotypes already conversed..")
+    genotype_file_content <- filter_variants_by_groups(genotype_file_content)
 
   } else if ( class( as.vector(genotype_file_content[1,1]) )  == "integer" && arguments$genoToFreq == T ||
               class( as.vector(genotype_file_content[1,1]) )  == "numeric" && arguments$genoToFreq == T ) {
     message("[INFO] Genotype conversion: ", as.character(arguments$genoToFreq), ", but genotypes already conversed..")
-
+    genotype_file_content <- filter_variants_by_groups(genotype_file_content)
   } else if ( class( as.vector(genotype_file_content[1,1]) ) == "factor" ) {
     stop("[STOP] Factor variables are not yet supported..")
-
   } else {
     stop("[STOP] Unexpected error, your genotype file is probably incorrect. If this is a persistent error,
          report the issue in the github issue tracker..")
@@ -126,8 +126,7 @@ leqtar_process_files <- function(arguments) {
       if ( all(genotype_samples == phenotype_samples) && all(genotype_samples == covariates_samples) ) {
         message("[INFO] Checking sample names OK..")
       }
-    }
-    if ( length( intersect(genotype_samples, phenotype_samples) ) == length(genotype_samples) &&
+    } else if ( length( intersect(genotype_samples, phenotype_samples) ) == length(genotype_samples) &&
          length( intersect(genotype_samples, covariates_samples) ) == length(genotype_samples) ) {
       message("[WARN] Sample names OK, but are in the wrong order..\n\\___   Re-ordering samples..")
       stop("[STOP] This is not yet implemented!")
@@ -189,7 +188,11 @@ leqtar_process_files <- function(arguments) {
               "\n\\___   Exlcuded: ", as.character( length(genotype_samples) - length( colnames(genotype_file_content) ) ),
               " samples from the genotype data.",
               "\n\\___   Excluded: ", as.character( length(covariates_samples) - length( colnames(covariates_file_content) ) ),
-              " samples from the covariates data.")
+              " samples from the covariates data.",
+              "\n\\___   New number of phenotype samples: ", length( colnames(phenotype_file_content) ),
+              "\n\\___   New number of genotype samples: ", length ( colnames(genotype_file_content) ),
+              "\n\\___   New number of covariate samples: ", length ( colnames(covariates_file_content) )
+               )
     }
   } else {
     if ( length(genotype_samples) == length(phenotype_samples) ) {
@@ -251,7 +254,7 @@ leqtar_process_files <- function(arguments) {
             "\n\\___   Number of NA's in phenotype data after conversion: ", numberOfNAAfter)
 
   }
-  message("[INFO] ----------#----------")
+
   message("[INFO] Checking phenotype data OK..")
   message("[INFO] ----------#----------")
   message("[INFO] Checking additional files..")
@@ -399,3 +402,26 @@ read_files <- function(file_extension, file_path) {
   })
   return(file_content)
 }
+
+#' filter_variants_by_groups
+#'
+#' Filters variants by genotype groups. A minimum of two groups have to exsist for a variant
+#' to be considered for analysis.
+#'
+#' @param genotype_file_content the genotype data.
+#' @return filtered genotype data.
+filter_variants_by_groups <- function(genotype_file_content) {
+  message("[INFO] Checking distribution genotypes in genotype groups..\n\\___  Variants with less than one genotype group are filtered out..")
+  index <- apply(genotype_file_content, 1, function(genotypes) {
+    if ( length( unique( round(genotypes) ) ) < 2 ) {
+      return(T)
+    } else {
+      return(F)
+    }
+  })
+  message("[INFO]  Total variants marked for removal: ", length(index[which(index==T)]), "..")
+  genotype_file_content <- genotype_file_content[-which(rownames(genotype_file_content) %in% names(index[which(index==T)]) ),,drop=F]
+  message("[INFO]  Total variants left after removal: ", dim(genotype_file_content)[1], "..")
+  return(genotype_file_content)
+}
+
