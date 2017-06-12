@@ -252,9 +252,15 @@ leqtar_create_genotype_boxplots <- function(arguments) {
           theme( plot.title = element_text( size = rel(1.6), hjust = 0.5),
                  plot.subtitle = element_text(size= rel(1), hjust = 0.5) ) +
           xlab(paste("Rounded genotype dosages", sep = "") ) + ylab("Log2 cytokine levels")
-
-        p + scale_fill_continuous( breaks = as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ), name="Rounded genotypes",
+        #breaks was as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) )
+        print("***")
+        print(length(c(0,1,2)))
+        print(paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep =""))
+        print("***")
+        p + scale_x_discrete(name="Rounded genotypes", breaks = as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ),
                                  labels=paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep ="") )
+          # + scale_x_discrete( labels = paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep =""),
+          #                   breaks =  as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ) )
         suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
       }
 

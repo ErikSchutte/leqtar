@@ -7,7 +7,8 @@
 leqtar(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL,
   useModel = "linear", genotypePositionFile = NULL,
   phenotypePositionFile = NULL, covariateFile = NULL, geneNames = NULL,
-  output_dir = NULL, genoToFreq = FALSE, forceRun = FALSE)
+  output_dir = NULL, genoToFreq = FALSE, filterGenotypeData = FALSE,
+  forceRun = FALSE)
 }
 \arguments{
 \item{run_name}{[REQUIRED] - A name that will be used for the current 'run'. This name has to be unique to perserve data, if you want to overwrite a run see 'forceRun'.}
@@ -29,6 +30,8 @@ leqtar(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL,
 \item{output_dir}{[OPTIONAL] - A relative path from your current working directory or an absolute path to a specific directory. The results will be stored in this location. This defaults to your current working directory.}
 
 \item{genoToFreq}{[OPTIONAL] - Turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis. The default is set to 'FALSE'.}
+
+\item{filterGenotypeData}{[OPTIONAL] - Filters genotype variants on genotype groups, recommended to apply such a filtering to the genotype data before hand if it is used multiple times.}
 
 \item{forceRun}{[OPTIONAL] - Normally Leqtar perserves data, by turning this to `TRUE` runs that already exist will be overwritten. The default is set to 'FALSE'.}
 }

@@ -6,7 +6,7 @@
 \usage{
 process_arguments(run_name, genotypeFile, genotypePositionFile, phenotypeFile,
   phenotypePositionFile, covariateFile, geneNames, useModel, output_dir,
-  genoToFreq, forceRun)
+  genoToFreq, filterGenotypeData, forceRun)
 }
 \arguments{
 \item{run_name}{Paramter that defines the name of the current run.}

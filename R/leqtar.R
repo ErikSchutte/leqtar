@@ -12,7 +12,7 @@
 
 # Build time and version ------------------------------------------------------------
 build_time <- as.character(Sys.time())
-build_version <- "0.1.1"
+build_version <- "0.1.4"
 cat("Building package", build_version, "on", build_time, "\n")
 
 # leqtar main function --------------------------------------------------------------
