@@ -28,7 +28,7 @@ leqtar_analysis <- function(arguments) {
   }
 
   # P-value threshold
-  pvOutputThreshold <- 0.5
+  pvOutputThreshold <- 0.05
 
   # Error covariance
   errorCovariance <- numeric()

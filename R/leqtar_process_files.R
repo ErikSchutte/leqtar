@@ -418,9 +418,19 @@ read_files <- function(file_extension, file_path) {
 filter_variants_by_groups <- function(genotype_file_content) {
   message("[INFO] Checking distribution genotypes in genotype groups..\n\\___  Variants with less than one genotype group are filtered out..")
   index <- apply(genotype_file_content, 1, function(genotypes) {
-    if ( length( unique( round(genotypes) ) ) < 2 ) {
+    genotypes <- round(genotypes)
+    if ( length( unique( genotypes ) ) < 2 ) {
       return(T)
     } else {
+      genotypes.table <- table(genotypes)
+      if ( length(genotypes.table) == 2 ) {
+        if ( genotypes.table[1] < 2 ) {
+          return(T)
+        }
+        if ( genotypes.table[2] < 2 ) {
+          return (T)
+        }
+      }
       return(F)
     }
   })
