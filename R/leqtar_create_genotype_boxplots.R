@@ -43,6 +43,14 @@ leqtar_create_genotype_boxplots <- function(arguments) {
     message("[INFO] Preparing QTL tables..")
     if (dim(qtls.subset)[1] > 0 ) {
       qtls.subset <- prepare_df_qtls(qtls.subset, arguments)
+    } else {
+      message("[INFO] Not able to write and visualize QTLs using this treshold..\n\\___   Showing only top one..")
+      qtls.subset <- qtls[which(qtls$pvalue == range(qtls$pvalue)[1]),, drop = F]
+      qtls.subset <- prepare_df_qtls(qtls.subset, arguments)
+      message("[INFO] Writing all qtls to file..")
+      write.table(qtls, file = paste(output_tbl, "/all_qtls.tsv", sep = ""), sep="\t", quote = F, row.names = F)
+    }
+
 
       # Iterate over df.
       ll <- apply(qtls.subset, 1, function(qtl) {
@@ -278,11 +286,7 @@ leqtar_create_genotype_boxplots <- function(arguments) {
       message("[INFO] ----------#----------")
       message("[INFO] Creating genotype boxplots.. OK")
       message("[INFO] ----------#----------")
-    } else {
-      message("[INFO] Not able to write and visualize QTLs using this treshold..")
-      message("[INFO] Writing all qtls to file..")
-      write.table(qtls, file = paste(output_tbl, "/all_qtls.tsv", sep = ""), sep="\t", quote = F, row.names = F)
-    }
+
     message("[INFO] --------DONE!--------")
   })
 

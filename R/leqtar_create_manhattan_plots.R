@@ -24,7 +24,7 @@ leqtar_create_manhattan_plots <- function(arguments) {
   #load( file.path("..", "data", "modified_data_files", "uniqueShuffeledMergedSNPPositions.RData", fsep = .Platform$file.sep) )
   #stimulations <- list.files( file.path( "..", "results", "cytokineQTLs", "log2", fsep = .Platform$file.sep), pattern = ".Rdata", full.names = T)
   # Get files.
-  output <- list.files( file.path( output_data ), pattern = "*.R[Dd]{1}ata", full.names=T )
+  output <- list.files( file.path( output_data ), pattern = paste0(arguments$run_name, ".R[Dd]{1}ata") )
 
   lapply(output, function(stimulation) {
     tmp_env <- new.env()
@@ -34,47 +34,62 @@ leqtar_create_manhattan_plots <- function(arguments) {
 
     # Subset results
     cytokines <- stimulation_data$all$eqtls[which(stimulation_data$all$eqtls$pvalue < 0.05),]
-    SNP_position_data <- arguments$genotypePositionData
-    # Should be the same length as the cytokine file.
-    length(which(stimulation_data$all$eqtls$snps %in% SNP_position_data[,1]))
+    print("Subset significant cQTLs..")
 
-    # Order on snps.
-    # cytokines <- cytokines[mixedorder(cytokines$snps),]
-    # SNP_position_data <- SNP_position_data[mixedorder(SNP_position_data[,1]),]
+    # Sort cytokines on snps
+    cytokines <- cytokines[mixedorder(as.character(cytokines$snps)),]
 
-    # Get snp info from positions file.
-    index_1 <- which(SNP_position_data[,1] %in% cytokines$snps)
-    index_2 <- which(cytokines$snps %in% SNP_position_data[,1])
-    print( head( cytokines ) )
-    print( head( SNP_position_data ) )
+    # Sort genomewide snps
+    genomewideSortedSNPPositions <- genomewideSortedSNPPositions[which(as.character(genomewideSortedSNPPositions$snps) %in% as.character(cytokines$snps)),]
+    genomewideSortedSNPPositions <- genomewideSortedSNPPositions[mixedorder(as.character(genomewideSortedSNPPositions$snps)),]
 
-    # re-aragne the info for plot.
-    newdf <- cbind.data.frame(SNP_position_data[index_1,], cytokines[index_2,])
+    # Create data.tables
+    cytokines <- as.data.table(cytokines)
+    genomewideSortedSNPPositions <- as.data.table(genomewideSortedSNPPositions)
+    print(head(cytokines))
+    print("*****")
+    print(head(genomewideSortedSNPPositions))
+    # Merge data.tables
+    setkey(cytokines, snps)
+    setkey(genomewideSortedSNPPositions, snps)
+    newdf <- merge(cytokines, genomewideSortedSNPPositions, by.x = "snps", by.y = "snps", all.x = T)
 
+    newdf <- newdf[, c("snps", "chr", "pos", "pvalue")]
+    print(colnames(newdf))
     # Set name of stimulation
+    print("Fabricating new names..")
     path_blocks <- unlist(str_split(stimulation, .Platform$file.sep))
 
     fileName <- path_blocks[length(path_blocks)]
 
-    #fileName <- unlist(str_split(fileName, ":[0-9]{2}_"))[2]
+    fileName <- unlist(str_split(fileName, ":[0-9]{2}_"))[2]
 
     fileName <- unlist(str_split(fileName, "Rdata"))[1]
     plotTitle <- fileName
-    tableName <- paste(fileName, "tsv", sep="")
+    print(fileName)
+    tableNameGenomewideSignificant <- paste(fileName, "genome_wide.tsv", sep="")
+    tableNameHighlySignificant <- paste(fileName, "highly_signif.tsv", sep = "")
     fileName <- paste(fileName, "png", sep="")
-    print("*****************")
-    newdf <- newdf[, c("snps", "chr", "pos", "pvalue")]
-    print(head(newdf))
+
+
+    colnames(newdf) <- c("SNP", "CHR", "BP", "P")
+    print(colnames(newdf))
+    print(newdf)
     # genome wide significance
+    print("Writing tables..")
     genwide_sig_snps <- newdf[which(newdf$P < 5e-08 ),]
-    write.table(genwide_sig_snps, file= file.path(output_tbl, tableName, fsep=.Platform$file.sep),
+    highly_significant_snps <- newdf[which(newdf$P < 1e-05 & newdf$P > 5e-08),]
+    write.table(genwide_sig_snps, file= file.path("..", "results", type, "figures", "manhattan", tableNameGenomewideSignificant, fsep=.Platform$file.sep),
                 quote = F, sep="\t" )
+    write.table(highly_significant_snps, file= file.path("..", "results", type, "figures", "manhattan", tableNameHighlySignificant, fsep=.Platform$file.sep),
+                quote = F, sep = "\t")
 
     # Open device.
-    png( file.path(output_img, "manhattan", fileName, fsep=.Platform$file.sep) )
+    print("Creating plots..")
+    png( file.path("..", "results", type, "figures", "manhattan", fileName, fsep=.Platform$file.sep) )
 
     # Generate plots
-    manhattan(newdf, chr = "chr", bp = "pos", p = "pvalue", snp = "snps", main = plotTitle,
+    manhattan(newdf, chr = "CHR", bp = "BP", p = "P", snp = "SNP", main = plotTitle,
               cex = 0.5, cex.axis = 0.8, col = c("blue4", "orange3") )
 
     # Close device
