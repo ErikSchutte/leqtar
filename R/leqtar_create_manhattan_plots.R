@@ -8,7 +8,7 @@
 #' @param output_img the folder whre genotype boxplots should go. Note it contains subfolders for manhattan plots and for genotype boxplots.
 #' @importFrom "gtools" "mixedorder"
 #' @importFrom "stringr" "str_split"
-#' @importFrom "qqman" "manhattan"
+#' @import "qqman"
 #' @export
 leqtar_create_manhattan_plots <- function(arguments) {
   message("[INFO] ----------#----------")
