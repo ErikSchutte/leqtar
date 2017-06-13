@@ -21,8 +21,8 @@ leqtar_create_manhattan_plots <- function(arguments) {
   output_tbl <- file.path( output_dir, "tables", fsep = .Platform$file.sep)
 
   # Get data
-  #load( file.path("..", "data", "modified_data_files", "uniqueShuffeledMergedSNPPositions.RData", fsep = .Platform$file.sep) )
-  #stimulations <- list.files( file.path( "..", "results", "cytokineQTLs", "log2", fsep = .Platform$file.sep), pattern = ".Rdata", full.names = T)
+  genomewideSortedSNPPositions <- arguments$genotypePositionData
+
   # Get files.
   output <- list.files( file.path( output_data ), pattern = paste0(arguments$run_name, ".R[Dd]{1}ata") )
 
