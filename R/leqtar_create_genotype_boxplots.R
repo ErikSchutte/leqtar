@@ -37,247 +37,248 @@ leqtar_create_genotype_boxplots <- function(arguments) {
     qtls <- f.data$all$eqtls
 
     # Get significant qtls.
-    qtls.05 <- qtls[which(qtls$pvalue < 0.05),]
-    message("[INFO] Total QTLs: ", dim(qtls)[1], "\n\\___   Significant QTLs (< 0.05): ", dim(qtls.05)[1], "..")
+    qtls.05 <- qtls[which(qtls$pvalue < 5e-8),, drop =F]
+    message("[INFO] Total QTLs: ", dim(qtls)[1], "\n\\___   Genome-wide Significant QTLs (< 5e-08): ", dim(qtls.05)[1], "..")
     message("[INFO] Preparing QTL tables..")
-    qtls.05 <- prepare_df_qtls(qtls.05, arguments)
+    if (dim(qtls.05)[1] > 0 {
+      qtls.05 <- prepare_df_qtls(qtls.05, arguments)
 
-    # Iterate over df.
-    ll <- apply(qtls.05, 1, function(qtl) {
-      # Set each row as a dataframe instead of a vector
-      qtl <- data.frame(t(qtl))
+      # Iterate over df.
+      ll <- apply(qtls.05, 1, function(qtl) {
+        # Set each row as a dataframe instead of a vector
+        qtl <- data.frame(t(qtl))
 
-      ## Test, remove after
-      # qtl <- f.data[1,]
+        ## Test, remove after
+        # qtl <- f.data[1,]
 
-      # Retrieve all genotypes from all samples for the specified snps.
-      if ( arguments$genoToFreq == T ) {
-        genotypes <- arguments$genotypeUnconvertedData
-        nCols <- ncol(genotypes) - 1
-        genotypes <- genotypes[which( rownames(genotypes) == as.character(qtl$snps) ), 1:nCols, drop = F]
+        # Retrieve all genotypes from all samples for the specified snps.
+        if ( arguments$genoToFreq == T ) {
+          genotypes <- arguments$genotypeUnconvertedData
+          nCols <- ncol(genotypes) - 1
+          genotypes <- genotypes[which( rownames(genotypes) == as.character(qtl$snps) ), 1:nCols, drop = F]
 
-      } else {
-        genotypes <- arguments$genotypeData
-        genotypes <- genotypes[which( rownames(genotypes) == as.character(qtl$snps) ),]
-      }
-
-      # Transpose and to data frame.
-      genotypes <- t(data.frame(genotypes))
-
-      # Filter NA's.
-      if (length( which(genotypes == "00") ) > 0) {
-        genotypes[which(genotypes=="00")] <- NA
-        samples.with.na <- which(is.na(genotypes)==T)
-        genotypes = t(data.frame(genotypes[,-samples.with.na]))
-      } else if ( length( which(is.na(genotypes) == T) ) > 0 ) {
-        samples.with.na <- which(is.na(genotypes)==T)
-        genotypes = t(data.frame(genotypes[,-samples.with.na]))
-      }
-      # colnames(genotypes) = gsub(colnames(genotypes), pattern="\\.[0-9]+", replacement="")
-
-      # Melt the transposed genotypes.
-      genotypes.melt <- suppressMessages( melt( t(genotypes) ) )
-
-      # Position current gene in the expression file.
-      gene.expression <- arguments$phenotypeData
-      gene.expression <- gene.expression[ which( rownames( gene.expression ) == qtl$gene ), , drop =F]
-
-      # if ( f.type != "individual" ) {
-      #   gene.expression <- ge.gencode[ which( qtl$gene == rownames( ge.gencode ) ), ]
-      #   if ( length( names(genotypes) ) < 88 ) {
-      #     gene.expression <- gene.expression[-samples.with.na]
-      #   }
-      # } else {
-      #   times = list( t0=seq( 1, length( colnames(ge.gencode) ), 4 ),
-      #                 t10=seq( 2, length( colnames(ge.gencode) ), 4 ),
-      #                 t30=seq( 3, length( colnames(ge.gencode) ), 4 ),
-      #                 t180=seq( 4, length( colnames(ge.gencode) ), 4 ) )
-      #   gene.expression <- ge.gencode[ which( qtl$gene == rownames( ge.gencode ) ), times[qtl$t.interval][[1]] ]
-      #   if ( length( colnames(genotypes) ) < 22 ) {
-      #     gene.expression <- gene.expression[-samples.with.na]
-      #   }
-      # }
-
-      # Add a column to the gene expression dataframe and fill it with time points for later use.
-      df.ge <- data.frame(gene.expression)
-
-      # if ( f.type != "individual" ) {
-      #   df.ge <- cbind.data.frame(df.ge, time=c(0))
-      #   df.ge[seq(1,length(gene.expression),4),2] <- "t0"
-      #   df.ge[seq(2,length(gene.expression),4),2] <- "t10"
-      #   df.ge[seq(3,length(gene.expression),4),2] <- "t30"
-      #   df.ge[seq(4,length(gene.expression),4),2] <- "t180"
-      # } else {
-      #   df.ge <- cbind.data.frame(df.ge, time=qtl$t.interval)
-      # }
-      colnames(df.ge) <- gsub(colnames(df.ge), pattern = "X", replacement = "")
-      df.ge.melt <- suppressMessages(melt(df.ge))
-
-      # Set sample names.
-      if (length(names(gene.expression) > 0) ) {
-        df.ge.melt[,1] <- names(gene.expression)
-      }
-
-      # Bind the dataframes together.
-      df.melt <- cbind.data.frame(expression=df.ge.melt[,2],
-                                  sample=df.ge.melt[,1],
-                                  genotypes=genotypes.melt)
-
-      # Create an order for the timepoints.
-      # timepoints.order <- c("t0","t10","t30","t180")
-
-      # Order the factor levels for the timepoints.
-      # df.melt$timepoints <- factor(df.melt$timepoints, levels=timepoints.order)
-
-      # Create an order for the genotypes.
-      if ( length( levels( df.melt$genotypes.value ) ) > 3 ) {
-        df.melt[ which( df.melt$genotypes.value == levels(df.melt$genotypes.value)[[3]] ), "genotypes.value"] <- paste( rev( unlist( stringr::str_split( levels(df.melt$genotypes.value)[[3]], "") ) ), collapse = "" )
-        df.melt$genotypes.value <- factor(df.melt$genotypes.value)
-        genotype.levels <- levels(df.melt$genotypes.value)
-      } else {
-        genotype.levels <- levels(df.melt$genotypes.value)
-      }
-      # print(genotype.levels)
-      if ( !is.null(arguments$genotypeUnconvertedData) ) {
-        major.allele = strsplit(as.character(qtl$alleles),"_")[[1]][2]
-        genotype.order <- c()
-        # print(major.allele)
-
-        if ( length(genotype.levels) == 2 ) { # Only 2 levels for genotypes.
-
-          one <- strsplit(genotype.levels,"")[[1]] # first level
-          two <- strsplit(genotype.levels,"")[[2]] # second level
-
-          if (major.allele == one[1] && major.allele == one[2]) { # first level is homozygous major allele.
-            # print("one is major")
-            major = genotype.levels[1]
-          } else if (major.allele == one[1] && major.allele != one[2] | major.allele != one[1] && major.allele == one[2]) { # first level is heteryzygous
-            # print("one is hetero")
-            heter = genotype.levels[1]
-            genotype.order <- c(genotype.order, one)
-          } else {
-            print("WARNING: Third genotype should not exists here.")
-          }
-
-          if (major.allele == two[1] && major.allele == two[2]) { # first level is homozygous major allele.
-            # print("two is major")
-            major = genotype.levels[2]
-          } else if (major.allele == two[1] && major.allele != two[2] | major.allele != two[1] && major.allele == two[2]) { # first level is heteryzygous
-            # print("two is heter")
-            heter = genotype.levels[2]
-          } else {
-            print("WARNING: Third genotype should not exists here.")
-          }
-
-          genotype.order <- c(major, heter)
-
-        } else { # 3 or 4 levels for genotypes.
-          # print(genotype.levels)
-
-          one <- strsplit(genotype.levels,"")[[1]] # first level
-          two <- strsplit(genotype.levels,"")[[2]] # second level
-          three <- strsplit(genotype.levels,"")[[3]] #third level
-          if (major.allele == one[1] && major.allele == one[2]) { # first level is major allele.
-            # print("one is major")
-            major = genotype.levels[1]
-          } else if (major.allele == one[1] && major.allele != one[2] | major.allele != one[1] && major.allele == one[2]) { # first level is heteryzygous
-            # print("one is hetero")
-            heter = genotype.levels[1]
-            genotype.order <- c(genotype.order, one)
-          } else {
-            # print("one is minor")
-            minor = genotype.levels[1]
-          }
-
-          if (major.allele == two[1] && major.allele == two[2]) { # first level is homozygous major allele.
-            # print("two is major")
-            major = genotype.levels[2]
-          } else if (major.allele == two[1] && major.allele != two[2] | major.allele != two[1] && major.allele == two[2]) { # first level is heteryzygous
-            # print("two is heter")
-            heter = genotype.levels[2]
-          } else {
-            minor = genotype.levels[2]
-          }
-
-          if (major.allele == three[1] && major.allele == three[2]) { # first level is homozygous major allele.
-            # print("three is major")
-            major = genotype.levels[3]
-          } else if (major.allele == three[1] && major.allele != three[2] | major.allele != three[1] && major.allele == three[2]) { # first level is heteryzygous
-            # print("three is heter")
-            heter = genotype.levels[3]
-          } else {
-            minor = genotype.levels[3]
-          }
-
-          genotype.order <- c(major, heter, minor)
+        } else {
+          genotypes <- arguments$genotypeData
+          genotypes <- genotypes[which( rownames(genotypes) == as.character(qtl$snps) ),]
         }
 
-        # Order the factor levels for the genotypes.
-        df.melt$genotypes.value <- factor(df.melt$genotypes.value, levels=genotype.order)
+        # Transpose and to data frame.
+        genotypes <- t(data.frame(genotypes))
 
-        # Order data on factor levels.
-        # df.melt <- df.melt[order(df.melt$timepoints),]
-        df.melt <- df.melt[order(df.melt$sample),]
+        # Filter NA's.
+        if (length( which(genotypes == "00") ) > 0) {
+          genotypes[which(genotypes=="00")] <- NA
+          samples.with.na <- which(is.na(genotypes)==T)
+          genotypes = t(data.frame(genotypes[,-samples.with.na]))
+        } else if ( length( which(is.na(genotypes) == T) ) > 0 ) {
+          samples.with.na <- which(is.na(genotypes)==T)
+          genotypes = t(data.frame(genotypes[,-samples.with.na]))
+        }
+        # colnames(genotypes) = gsub(colnames(genotypes), pattern="\\.[0-9]+", replacement="")
 
-        # Save ggplot in variable and plot.
-        mi <- min( df.melt$expression ) - 1
-        ma <- max(df.melt$expression ) + 1
-        p <- ggplot(data=df.melt, aes(x=genotypes.value, y=expression, group=genotypes.value) ) +
-          geom_boxplot(aes( fill=genotypes.value), outlier.shape=NA ) +
-          geom_point( position=position_jitter(width=0.15),colour = "darkgrey") +
-          coord_cartesian( ylim = c( mi,ma ) ) +
-          ggtitle( paste(qtl$gene.name, " - ", qtl$snps, sep = ""),
-                   subtitle = paste( "P-value: ", qtl$pvalue ) ) +
-          theme( plot.title = element_text( size = rel(1.6), hjust = 0.5 ),
-                 plot.subtitle = element_text(size = rel(1), hjust = 0.5 ) ) +
-          xlab(paste("Genotypes",sep="")) + ylab("Norm. read count")
+        # Melt the transposed genotypes.
+        genotypes.melt <- suppressMessages( melt( t(genotypes) ) )
+
+        # Position current gene in the expression file.
+        gene.expression <- arguments$phenotypeData
+        gene.expression <- gene.expression[ which( rownames( gene.expression ) == qtl$gene ), , drop =F]
+
         # if ( f.type != "individual" ) {
-        #   p + scale_fill_discrete( name="Genotypes",
-        #                            labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value )/4, ")", sep ="") ) +
-        #     facet_wrap( ~ timepoints, scales="free")
+        #   gene.expression <- ge.gencode[ which( qtl$gene == rownames( ge.gencode ) ), ]
+        #   if ( length( names(genotypes) ) < 88 ) {
+        #     gene.expression <- gene.expression[-samples.with.na]
+        #   }
         # } else {
-        p + scale_fill_discrete( name="Genotypes",
-                                 labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value ), ")", sep ="") )
+        #   times = list( t0=seq( 1, length( colnames(ge.gencode) ), 4 ),
+        #                 t10=seq( 2, length( colnames(ge.gencode) ), 4 ),
+        #                 t30=seq( 3, length( colnames(ge.gencode) ), 4 ),
+        #                 t180=seq( 4, length( colnames(ge.gencode) ), 4 ) )
+        #   gene.expression <- ge.gencode[ which( qtl$gene == rownames( ge.gencode ) ), times[qtl$t.interval][[1]] ]
+        #   if ( length( colnames(genotypes) ) < 22 ) {
+        #     gene.expression <- gene.expression[-samples.with.na]
+        #   }
         # }
 
-        suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene.name, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
-      } else {
-        df.melt <- cbind.data.frame(df.melt, rounded=round(df.melt$genotypes.value))
-        p <- ggplot(data=df.melt, aes(x=rounded, y=expression, group = rounded ) ) +
-          geom_boxplot(aes( fill=rounded), outlier.shape=NA) +
-          geom_point( position=position_jitter(width=0.15), colour = "darkgrey") +
-          coord_cartesian( ylim = c( (min(df.melt$expression) -1 ), (max(df.melt$expression) +1) ) ) +
-          ggtitle( paste( qtl$gene, " - ", qtl$snps, sep = ""),
-                   subtitle = paste( "P-value: ", qtl$pvalue ) ) +
-          theme( plot.title = element_text( size = rel(1.6), hjust = 0.5),
-                 plot.subtitle = element_text(size= rel(1), hjust = 0.5) ) +
-          xlab(paste("Rounded genotype dosages", sep = "") ) + ylab("Log2 cytokine levels")
-        #breaks was as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) )
-        print("***")
-        print(length(c(0,1,2)))
-        print(paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep =""))
-        print("***")
-        p + scale_x_discrete(name="Rounded genotypes", breaks = as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ),
-                                 labels=paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep ="") )
-          # + scale_x_discrete( labels = paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep =""),
-          #                   breaks =  as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ) )
-        suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
-      }
+        # Add a column to the gene expression dataframe and fill it with time points for later use.
+        df.ge <- data.frame(gene.expression)
+
+        # if ( f.type != "individual" ) {
+        #   df.ge <- cbind.data.frame(df.ge, time=c(0))
+        #   df.ge[seq(1,length(gene.expression),4),2] <- "t0"
+        #   df.ge[seq(2,length(gene.expression),4),2] <- "t10"
+        #   df.ge[seq(3,length(gene.expression),4),2] <- "t30"
+        #   df.ge[seq(4,length(gene.expression),4),2] <- "t180"
+        # } else {
+        #   df.ge <- cbind.data.frame(df.ge, time=qtl$t.interval)
+        # }
+        colnames(df.ge) <- gsub(colnames(df.ge), pattern = "X", replacement = "")
+        df.ge.melt <- suppressMessages(melt(df.ge))
+
+        # Set sample names.
+        if (length(names(gene.expression) > 0) ) {
+          df.ge.melt[,1] <- names(gene.expression)
+        }
+
+        # Bind the dataframes together.
+        df.melt <- cbind.data.frame(expression=df.ge.melt[,2],
+                                    sample=df.ge.melt[,1],
+                                    genotypes=genotypes.melt)
+
+        # Create an order for the timepoints.
+        # timepoints.order <- c("t0","t10","t30","t180")
+
+        # Order the factor levels for the timepoints.
+        # df.melt$timepoints <- factor(df.melt$timepoints, levels=timepoints.order)
+
+        # Create an order for the genotypes.
+        if ( length( levels( df.melt$genotypes.value ) ) > 3 ) {
+          df.melt[ which( df.melt$genotypes.value == levels(df.melt$genotypes.value)[[3]] ), "genotypes.value"] <- paste( rev( unlist( stringr::str_split( levels(df.melt$genotypes.value)[[3]], "") ) ), collapse = "" )
+          df.melt$genotypes.value <- factor(df.melt$genotypes.value)
+          genotype.levels <- levels(df.melt$genotypes.value)
+        } else {
+          genotype.levels <- levels(df.melt$genotypes.value)
+        }
+        # print(genotype.levels)
+        if ( !is.null(arguments$genotypeUnconvertedData) ) {
+          major.allele = strsplit(as.character(qtl$alleles),"_")[[1]][2]
+          genotype.order <- c()
+          # print(major.allele)
+
+          if ( length(genotype.levels) == 2 ) { # Only 2 levels for genotypes.
+
+            one <- strsplit(genotype.levels,"")[[1]] # first level
+            two <- strsplit(genotype.levels,"")[[2]] # second level
+
+            if (major.allele == one[1] && major.allele == one[2]) { # first level is homozygous major allele.
+              # print("one is major")
+              major = genotype.levels[1]
+            } else if (major.allele == one[1] && major.allele != one[2] | major.allele != one[1] && major.allele == one[2]) { # first level is heteryzygous
+              # print("one is hetero")
+              heter = genotype.levels[1]
+              genotype.order <- c(genotype.order, one)
+            } else {
+              print("WARNING: Third genotype should not exists here.")
+            }
+
+            if (major.allele == two[1] && major.allele == two[2]) { # first level is homozygous major allele.
+              # print("two is major")
+              major = genotype.levels[2]
+            } else if (major.allele == two[1] && major.allele != two[2] | major.allele != two[1] && major.allele == two[2]) { # first level is heteryzygous
+              # print("two is heter")
+              heter = genotype.levels[2]
+            } else {
+              print("WARNING: Third genotype should not exists here.")
+            }
+
+            genotype.order <- c(major, heter)
+
+          } else { # 3 or 4 levels for genotypes.
+            # print(genotype.levels)
+
+            one <- strsplit(genotype.levels,"")[[1]] # first level
+            two <- strsplit(genotype.levels,"")[[2]] # second level
+            three <- strsplit(genotype.levels,"")[[3]] #third level
+            if (major.allele == one[1] && major.allele == one[2]) { # first level is major allele.
+              # print("one is major")
+              major = genotype.levels[1]
+            } else if (major.allele == one[1] && major.allele != one[2] | major.allele != one[1] && major.allele == one[2]) { # first level is heteryzygous
+              # print("one is hetero")
+              heter = genotype.levels[1]
+              genotype.order <- c(genotype.order, one)
+            } else {
+              # print("one is minor")
+              minor = genotype.levels[1]
+            }
+
+            if (major.allele == two[1] && major.allele == two[2]) { # first level is homozygous major allele.
+              # print("two is major")
+              major = genotype.levels[2]
+            } else if (major.allele == two[1] && major.allele != two[2] | major.allele != two[1] && major.allele == two[2]) { # first level is heteryzygous
+              # print("two is heter")
+              heter = genotype.levels[2]
+            } else {
+              minor = genotype.levels[2]
+            }
+
+            if (major.allele == three[1] && major.allele == three[2]) { # first level is homozygous major allele.
+              # print("three is major")
+              major = genotype.levels[3]
+            } else if (major.allele == three[1] && major.allele != three[2] | major.allele != three[1] && major.allele == three[2]) { # first level is heteryzygous
+              # print("three is heter")
+              heter = genotype.levels[3]
+            } else {
+              minor = genotype.levels[3]
+            }
+
+            genotype.order <- c(major, heter, minor)
+          }
+
+          # Order the factor levels for the genotypes.
+          df.melt$genotypes.value <- factor(df.melt$genotypes.value, levels=genotype.order)
+
+          # Order data on factor levels.
+          # df.melt <- df.melt[order(df.melt$timepoints),]
+          df.melt <- df.melt[order(df.melt$sample),]
+
+          # Save ggplot in variable and plot.
+          mi <- min( df.melt$expression ) - 1
+          ma <- max(df.melt$expression ) + 1
+          p <- ggplot(data=df.melt, aes(x=genotypes.value, y=expression, group=genotypes.value) ) +
+            geom_boxplot(aes( fill=genotypes.value), outlier.shape=NA ) +
+            geom_point( position=position_jitter(width=0.15),colour = "darkgrey") +
+            coord_cartesian( ylim = c( mi,ma ) ) +
+            ggtitle( paste(qtl$gene.name, " - ", qtl$snps, sep = ""),
+                     subtitle = paste( "P-value: ", qtl$pvalue ) ) +
+            theme( plot.title = element_text( size = rel(1.6), hjust = 0.5 ),
+                   plot.subtitle = element_text(size = rel(1), hjust = 0.5 ) ) +
+            xlab(paste("Genotypes",sep="")) + ylab("Norm. read count")
+          # if ( f.type != "individual" ) {
+          #   p + scale_fill_discrete( name="Genotypes",
+          #                            labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value )/4, ")", sep ="") ) +
+          #     facet_wrap( ~ timepoints, scales="free")
+          # } else {
+          p + scale_fill_discrete( name="Genotypes",
+                                   labels=paste( names( table( df.melt$genotypes.value ) ),"(", table( df.melt$genotypes.value ), ")", sep ="") )
+          # }
+
+          suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene.name, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
+        } else {
+          df.melt <- cbind.data.frame(df.melt, rounded=round(df.melt$genotypes.value))
+          p <- ggplot(data=df.melt, aes(x=rounded, y=expression, group = rounded ) ) +
+            geom_boxplot(aes( fill=rounded), outlier.shape=NA) +
+            geom_point( position=position_jitter(width=0.15), colour = "darkgrey") +
+            coord_cartesian( ylim = c( (min(df.melt$expression) -1 ), (max(df.melt$expression) +1) ) ) +
+            ggtitle( paste( qtl$gene, " - ", qtl$snps, sep = ""),
+                     subtitle = paste( "P-value: ", qtl$pvalue ) ) +
+            theme( plot.title = element_text( size = rel(1.6), hjust = 0.5),
+                   plot.subtitle = element_text(size= rel(1), hjust = 0.5) ) +
+            xlab(paste("Rounded genotype dosages", sep = "") ) + ylab("Log2 cytokine levels")
+          #breaks was as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) )
+          print("***")
+          print(length(c(0,1,2)))
+          print(paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep =""))
+          print("***")
+          p + scale_x_discrete(name="Rounded genotypes", breaks = as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ),
+                                   labels=paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep ="") )
+            # + scale_x_discrete( labels = paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep =""),
+            #                   breaks =  as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ) )
+          suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
+        }
 
 
+      })
+
+
+      # Save result tables.
+      message("[INFO] Saving result tables..")
+      write.table(qtls.05, file = paste(output_tbl, "/detected_qtls_0.05.tsv", sep = ""), sep="\t", quote = F, row.names = F)
+      #write.table(qtls, file = paste(output_tbl, "/detected_qtls.tsv", sep = ""), sep="\t", quote = F, row.names = F)
+
+      message("[INFO] ----------#----------")
+      message("[INFO] Creating genotype boxplots.. OK")
+      message("[INFO] ----------#----------")
     })
-
-
-    # Save result tables.
-    message("[INFO] Saving result tables..")
-    write.table(qtls.05, file = paste(output_tbl, "/detected_qtls_0.05.tsv", sep = ""), sep="\t", quote = F, row.names = F)
-    #write.table(qtls, file = paste(output_tbl, "/detected_qtls.tsv", sep = ""), sep="\t", quote = F, row.names = F)
-
-    message("[INFO] ----------#----------")
-    message("[INFO] Creating genotype boxplots.. OK")
-    message("[INFO] ----------#----------")
-  })
-
+  }
   #   # Set name of file.
   #   f.name = sub(f, pattern=".*/", replacement="")
   #   f.name = sub(f.name, pattern="\\.Rdata", replacement="")
