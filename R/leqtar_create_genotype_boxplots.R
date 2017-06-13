@@ -37,7 +37,7 @@ leqtar_create_genotype_boxplots <- function(arguments) {
     qtls <- f.data$all$eqtls
 
     # Get significant qtls.
-    treshold <- 1e-7
+    treshold <- 5e-8
     qtls.subset <- qtls[which(qtls$pvalue < treshold),, drop =F]
     message("[INFO] Total QTLs: ", dim(qtls)[1], "\n\\___   Treshold Significant QTLs (< ", as.character(treshold), "): ", dim(qtls.subset)[1], "..")
     message("[INFO] Preparing QTL tables..")
