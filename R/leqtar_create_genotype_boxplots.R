@@ -39,7 +39,7 @@ leqtar_create_genotype_boxplots <- function(arguments) {
     # Get significant qtls.
     treshold <- 1e-7
     qtls.subset <- qtls[which(qtls$pvalue < treshold),, drop =F]
-    message("[INFO] Total QTLs: ", dim(qtls)[1], "\n\\___   Genome-wide Significant QTLs (< ", as.character(treshold), "): ", dim(qtls.subset)[1], "..")
+    message("[INFO] Total QTLs: ", dim(qtls)[1], "\n\\___   Treshold Significant QTLs (< ", as.character(treshold), "): ", dim(qtls.subset)[1], "..")
     message("[INFO] Preparing QTL tables..")
     if (dim(qtls.subset)[1] > 0 ) {
       qtls.subset <- prepare_df_qtls(qtls.subset, arguments)
@@ -256,10 +256,12 @@ leqtar_create_genotype_boxplots <- function(arguments) {
             xlab(paste("Rounded genotype dosages", sep = "") ) + ylab("Log2 cytokine levels")
           #breaks was as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) )
 
-          p + scale_fill_discrete(name="Rounded genotypes", breaks = as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ),
-                                   labels=paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep ="") )
-            # + scale_x_discrete( labels = paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep =""),
-            #                   breaks =  as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ) )
+          p + scale_fill_continuous(name="Rounded genotypes", breaks = as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ),
+                                   labels=paste( "Group: ", names( table( round(df.melt$genotypes.value) ) )," (#", table( round(df.melt$genotypes.value) ), ")", sep ="") ) +
+            scale_x_discrete( labels = paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep =""),
+                               breaks =  as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ) )
+          # scale_x_discrete( labels = paste( names( table( round(df.melt$genotypes.value) ) ),"(", table( round(df.melt$genotypes.value) ), ")", sep =""),
+          #                   breaks =  as.vector( as.numeric( names(table( round( df.melt$genotypes.value ) ) ) ) ) )
           suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
         }
 
@@ -275,8 +277,13 @@ leqtar_create_genotype_boxplots <- function(arguments) {
       message("[INFO] ----------#----------")
       message("[INFO] Creating genotype boxplots.. OK")
       message("[INFO] ----------#----------")
+    } else {
+      message("[INFO] Not able to write and visualize QTLs using this treshold..")
+      message("[INFO] Writing all qtls to file..")
+      write.table(qtls, file = paste(output_tbl, "/all_qtls.tsv", sep = ""), sep="\t", quote = F, row.names = F)
     }
-    })
+    message("[INFO] --------DONE!--------")
+  })
 
   #   # Set name of file.
   #   f.name = sub(f, pattern=".*/", replacement="")
