@@ -245,6 +245,7 @@ leqtar_create_genotype_boxplots <- function(arguments) {
           suppressMessages(ggsave( filename=paste( output_img, "/genotype/", qtl$gene.name, "_", qtl$snps,".pdf", sep=""), plot=last_plot(), device = "pdf"))
         } else {
           df.melt <- cbind.data.frame(df.melt, rounded=round(df.melt$genotypes.value))
+          df.melt <- df.melt[which(!is.na(df.melt$expression)),, drop = F]
           p <- ggplot(data=df.melt, aes(x=rounded, y=expression, group = rounded ) ) +
             geom_boxplot(aes( fill=rounded), outlier.shape=NA) +
             geom_point( position=position_jitter(width=0.15), colour = "darkgrey") +
