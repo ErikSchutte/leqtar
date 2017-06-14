@@ -281,7 +281,7 @@ leqtar_create_genotype_boxplots <- function(arguments) {
       # Save result tables.
       message("[INFO] Saving result tables..")
       write.table(qtls.subset, file = paste(output_tbl, "/detected_qtls_0.05.tsv", sep = ""), sep="\t", quote = F, row.names = F)
-      #write.table(qtls, file = paste(output_tbl, "/detected_qtls.tsv", sep = ""), sep="\t", quote = F, row.names = F)
+      write.table(qtls, file = paste(output_tbl, "/detected_qtls.tsv", sep = ""), sep="\t", quote = F, row.names = F)
 
       message("[INFO] ----------#----------")
       message("[INFO] Creating genotype boxplots.. OK")
