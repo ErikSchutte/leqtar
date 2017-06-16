@@ -38,7 +38,7 @@ cat("Building package", build_version, "on", build_time, "\n")
 #' @param forceRun [OPTIONAL] - Normally Leqtar perserves data, by turning this to `TRUE` runs that already exist will be overwritten. The default is set to 'FALSE'.
 #' @note For a complete view of how to run and use Leqtar, please visit https://github.com/ErikSchutte/leqtar.
 leqtar <- function(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL, useModel = 'linear',
-                    genotypePositionFile = NULL, phenotypePositionFile = NULL, covariateFile = NULL, pvalTreshold = NULL
+                   genotypePositionFile = NULL, phenotypePositionFile = NULL, covariateFile = NULL, pvalTreshold = NULL,
                    geneNames = NULL, output_dir = NULL,  genoToFreq = FALSE, filterGenotypeData = FALSE,
                    forceRun = FALSE) {
   message("[INFO] ----------#----------")

@@ -6,9 +6,9 @@
 \usage{
 leqtar(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL,
   useModel = "linear", genotypePositionFile = NULL,
-  phenotypePositionFile = NULL, covariateFile = NULL, geneNames = NULL,
-  output_dir = NULL, genoToFreq = FALSE, filterGenotypeData = FALSE,
-  forceRun = FALSE)
+  phenotypePositionFile = NULL, covariateFile = NULL, pvalTreshold = NULL,
+  geneNames = NULL, output_dir = NULL, genoToFreq = FALSE,
+  filterGenotypeData = FALSE, forceRun = FALSE)
 }
 \arguments{
 \item{run_name}{[REQUIRED] - A name that will be used for the current 'run'. This name has to be unique to perserve data, if you want to overwrite a run see 'forceRun'.}
@@ -24,6 +24,8 @@ leqtar(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL,
 \item{phenotypePositionFile}{[OPTIONAL] - A file containing the positions for each gene.}
 
 \item{covariateFile}{[OPTIONAL] - A Covariate file containing covariates. Sample names are expected as colnames and covariates as rownames.}
+
+\item{pvalTreshold}{[OPTIONAL] - A P-value treshold for linear analysis, defaults to 0.05.}
 
 \item{geneNames}{[OPTIONAL] - A file containing the gene names that corrospond to Ensemble ID's or any other ID.}
 
