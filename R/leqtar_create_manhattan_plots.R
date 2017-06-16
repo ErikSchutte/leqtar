@@ -68,9 +68,9 @@ leqtar_create_manhattan_plots <- function(arguments) {
 #     plotTitle <- fileName
 #     print(fileName)
 
-    tableNameGenomewideSignificant <- paste(argument$run_name, "_genome_wide.tsv", sep="")
-    tableNameHighlySignificant <- paste(argument$run_name, "_highly_signif.tsv", sep = "")
-    fileName <- paste(argument$run_name, ".png", sep="")
+    tableNameGenomewideSignificant <- paste(arguments$run_name, "_genome_wide.tsv", sep="")
+    tableNameHighlySignificant <- paste(arguments$run_name, "_highly_signif.tsv", sep = "")
+    fileName <- paste(arguments$run_name, ".png", sep="")
 
 
     colnames(newdf) <- c("SNP", "CHR", "BP", "P")
