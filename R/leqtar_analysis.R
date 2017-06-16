@@ -103,6 +103,6 @@ leqtar_analysis <- function(arguments) {
 
   save(me, file= file.path( arguments$output, "data", paste0(arguments$run_name, ".Rdata"), fsep=.Platform$file.sep) )
   save(arguments, file=file.path( arguments$output, "data", "used_arguments.RData", fsep = .Platform$file.sep) )
-  write(me$all$eqtls, quote=F, sep = "\t",
+  write.table(me$all$eqtls, quote=F, sep = "\t",
         file = file.path( arguments$output, "tables", paste0(arguments$run_name, "_all_eqtls.tsv"), fsep = .Platform$file.sep ) )
 }

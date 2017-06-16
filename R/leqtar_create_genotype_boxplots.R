@@ -334,12 +334,7 @@ prepare_df_qtls <- function(qtl, arguments) {
     # print(qtl)
     colOrder[3] <- 5
   }
-  # else {
-  #   # Re order tmp df cols.
-  #   tmp.df <- result[,c("gene","gene_name","gene.chr", "gene.start", "gene.end",
-  #                       "snps", "snps.chr", "snps.pos", "statistic",
-  #                       "FDR","beta", "pvalue")]
-  # }
+
 
   if ( sum(colOrder) == 0) {
     stop("[STOP] Dev error, create an issue in github..")
