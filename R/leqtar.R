@@ -30,6 +30,7 @@ cat("Building package", build_version, "on", build_time, "\n")
 #' @param genotypePositionFile [OPTIONAL] - A file containing the positions for each SNP. The colnames are 'snp', 'chr' and	'pos'.
 #' @param phenotypePositionFile [OPTIONAL] - A file containing the positions for each gene.
 #' @param covariateFile [OPTIONAL] - A Covariate file containing covariates. Sample names are expected as colnames and covariates as rownames.
+#' @param pvalTreshold [OPTIONAL] - A P-value treshold for linear analysis, defaults to 0.05.
 #' @param geneNames [OPTIONAL] - A file containing the gene names that corrospond to Ensemble ID's or any other ID.
 #' @param output_dir [OPTIONAL] - A relative path from your current working directory or an absolute path to a specific directory. The results will be stored in this location. This defaults to your current working directory.
 #' @param genoToFreq [OPTIONAL] - Turns on conversion from genotypes i.e. 'AC' to a frequency for linear regression analysis. The default is set to 'FALSE'.
@@ -37,7 +38,7 @@ cat("Building package", build_version, "on", build_time, "\n")
 #' @param forceRun [OPTIONAL] - Normally Leqtar perserves data, by turning this to `TRUE` runs that already exist will be overwritten. The default is set to 'FALSE'.
 #' @note For a complete view of how to run and use Leqtar, please visit https://github.com/ErikSchutte/leqtar.
 leqtar <- function(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL, useModel = 'linear',
-                    genotypePositionFile = NULL, phenotypePositionFile = NULL, covariateFile = NULL,
+                    genotypePositionFile = NULL, phenotypePositionFile = NULL, covariateFile = NULL, pvalTreshold = NULL
                    geneNames = NULL, output_dir = NULL,  genoToFreq = FALSE, filterGenotypeData = FALSE,
                    forceRun = FALSE) {
   message("[INFO] ----------#----------")
@@ -50,7 +51,7 @@ leqtar <- function(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL, u
   start_leqtar <- Sys.time()
   # Processes arguments, returns a list with all arguments.
   arguments <- process_arguments(run_name, genotypeFile, genotypePositionFile, phenotypeFile, phenotypePositionFile,
-                                 covariateFile, geneNames, useModel, output_dir, genoToFreq, filterGenotypeData,
+                                 covariateFile, pvalTreshold, geneNames, useModel, output_dir, genoToFreq, filterGenotypeData,
                                  forceRun)
 
   # Parse arguments to leqtar_analysis.
@@ -89,7 +90,7 @@ leqtar <- function(run_name = NULL, genotypeFile = NULL, phenotypeFile = NULL, u
 #' @importFrom "utils" "modifyList"
 #' @importFrom "stringr" "str_match"
 process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phenotypeFile, phenotypePositionFile,
-                              covariateFile, geneNames, useModel, output_dir, genoToFreq, filterGenotypeData,
+                              covariateFile, pvalTreshold, geneNames, useModel, output_dir, genoToFreq, filterGenotypeData,
                               forceRun) {
 
   message("[INFO] ----------#----------")
@@ -98,13 +99,13 @@ process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phen
   # Bind the arguments variable.
   arguments <- list(run_name = NULL, genotype = NULL, genotypePosition = NULL, genotypeData = NULL, genotypePositionData = NULL, genotypeUnconvertedData = NULL,
                     phenotype = NULL, phenotypePosition = NULL, phenotypeData = NULL, phenotypePositionData = NULL, covariates=NULL,
-                    covariatesData = NULL, geneNames = NULL, useModel = NULL, output = NULL, genoToFreq = FALSE,
+                    covariatesData = NULL, pvalTreshold = 0.05, geneNames = NULL, useModel = NULL, output = NULL, genoToFreq = FALSE,
                     filterGenotypeData = FALSE, forceRun = FALSE)
 
   if ( is.null(run_name) ) {
     stop("[STOP] A name for the current run is required, preferably a unique one. See '?leqtar' for 'run_name'..")
   } else {
-    arguments <- modifyList(arguments, list(run_name = run_name) )
+    arguments <- modifyList(arguments, list( run_name = run_name) )
   }
 
   # Check if the genotype file is provided/exists.
@@ -188,6 +189,19 @@ process_arguments <- function(run_name, genotypeFile, genotypePositionFile, phen
 
   } else {
     stop("[STOP] Model: ", as.character(useModel), " is not recognized by Leqtar..")
+  }
+
+  # Check pvalue treshold ----
+  if ( is.null(pvalTreshold) ) {
+    message("[INFO] pvalTreshold not supplied, default is 0.05..")
+  } else {
+    if ( suppressWarnings( is.na( as.numeric(pvalTreshold) ) ) ) {
+      stop("[STOP] pvalTreshold must be a single number i.e. 0.05 or 5e-8")
+    } else {
+      pvalTreshold <- as.numeric(pvalTreshold)
+      message("[INFO] pvalTreshold: ", as.character(pvalTreshold), "..")
+      arguments <- modifyList( arguments, list(pvalTreshold = pvalTreshold ) )
+    }
   }
 
   # Check for gene names files -----

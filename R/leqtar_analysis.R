@@ -28,7 +28,7 @@ leqtar_analysis <- function(arguments) {
   }
 
   # P-value threshold
-  pvOutputThreshold <- 0.05
+  pvOutputThreshold <- arguments$pvalTreshold
 
   # Error covariance
   errorCovariance <- numeric()
@@ -40,7 +40,7 @@ leqtar_analysis <- function(arguments) {
   snps = SlicedData$new()
   snps$CreateFromMatrix( as.matrix(arguments$genotypeData) )
   snps$fileDelimiter <- "\t";      # the TAB character
-  snps$fileOmitCharacters <- "NA"; # denote missing values;
+  snps$fileOmitCharacters <- NA; # denote missing values;
   snps$fileSkipRows <- 1;          # one row of column labels
   snps$fileSkipColumns <- 1;       # one column of row labels
   snps$fileSliceSize <- 2000;      # read file in pieces of 2,000 rows
@@ -49,7 +49,7 @@ leqtar_analysis <- function(arguments) {
   expr = SlicedData$new()
   expr$CreateFromMatrix( as.matrix(arguments$phenotypeData) )
   expr$fileDelimiter <- "\t";      # the TAB character
-  expr$fileOmitCharacters <- "NA"; # denote missing values;
+  expr$fileOmitCharacters <- NA; # denote missing values;
   expr$fileSkipRows <- 1;          # one row of column labels
   expr$fileSkipColumns <- 1;       # one column of row labels
   expr$fileSliceSize <- 2000;      # read file in pieces of 2,000 rows
@@ -59,14 +59,14 @@ leqtar_analysis <- function(arguments) {
     covs = SlicedData$new()
     covs$CreateFromMatrix( as.matrix(arguments$covariatesData) )
     covs$fileDelimiter <- "\t";      # the TAB character
-    covs$fileOmitCharacters <- "NA"; # denote missing values;
+    covs$fileOmitCharacters <- NA; # denote missing values;
     covs$fileSkipRows <- 1;          # one row of column labels
     covs$fileSkipColumns <- 1;       # one column of row labels
     covs$fileSliceSize <- 2000;      # read file in pieces of 2,000 rows
   } else {
     covs = SlicedData$new()
     covs$fileDelimiter <- "\t";      # the TAB character
-    covs$fileOmitCharacters <- "NA"; # denote missing values;
+    covs$fileOmitCharacters <- NA; # denote missing values;
     covs$fileSkipRows <- 1;          # one row of column labels
     covs$fileSkipColumns <- 1;       # one column of row labels
     covs$fileSliceSize <- 2000;      # read file in pieces of 2,000 rows
@@ -100,8 +100,9 @@ leqtar_analysis <- function(arguments) {
   message("[INFO] ----------#----------")
   message("[INFO] Saving results..")
   # Save output.
-  run_name <- paste(arguments$run_name, ".Rdata", sep="")
-  save(me, file= file.path( arguments$output, "data", run_name, fsep=.Platform$file.sep) )
-  save(arguments, file=file.path( arguments$output, "data", "used_arguments.RData", fsep = .Platform$file.sep) )
 
+  save(me, file= file.path( arguments$output, "data", paste0(arguments$run_name, ".Rdata"), fsep=.Platform$file.sep) )
+  save(arguments, file=file.path( arguments$output, "data", "used_arguments.RData", fsep = .Platform$file.sep) )
+  write(me$all$eqtls, quote=F, sep = "\t",
+        file = file.path( arguments$output, "tables", paste0(arguments$run_name, "_all_eqtls.tsv"), fsep = .Platform$file.sep ) )
 }
