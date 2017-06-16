@@ -24,7 +24,7 @@ leqtar_create_manhattan_plots <- function(arguments) {
   genomewideSortedSNPPositions <- arguments$genotypePositionData
 
   # Get files.
-  output <- list.files( file.path( output_data ), pattern = paste0(arguments$run_name, ".R[Dd]{1}ata") )
+  output <- list.files( file.path( output_data ), pattern = paste0(arguments$run_name, ".R[Dd]{1}ata"), full.names = T )
 
   lapply(output, function(stimulation) {
     tmp_env <- new.env()
@@ -33,7 +33,7 @@ leqtar_create_manhattan_plots <- function(arguments) {
     rm(tmp_env)
 
     # Subset results
-    cytokines <- stimulation_data$all$eqtls[which(stimulation_data$all$eqtls$pvalue < 0.05),]
+    cytokines <- stimulation_data$all$eqtls[which( as.numeric(stimulation_data$all$eqtls$pvalue) < 0.05),]
     print("Subset significant cQTLs..")
 
     # Sort cytokines on snps
@@ -58,18 +58,19 @@ leqtar_create_manhattan_plots <- function(arguments) {
     print(colnames(newdf))
     # Set name of stimulation
     print("Fabricating new names..")
-    path_blocks <- unlist(str_split(stimulation, .Platform$file.sep))
+    # path_blocks <- unlist(str_split(stimulation, .Platform$file.sep))
+    #
+    # fileName <- path_blocks[length(path_blocks)]
+    #
+    # fileName <- unlist(str_split(fileName, ":[0-9]{2}_"))[2]
+#
+#     fileName <- unlist(str_split(fileName, "Rdata"))[1]
+#     plotTitle <- fileName
+#     print(fileName)
 
-    fileName <- path_blocks[length(path_blocks)]
-
-    fileName <- unlist(str_split(fileName, ":[0-9]{2}_"))[2]
-
-    fileName <- unlist(str_split(fileName, "Rdata"))[1]
-    plotTitle <- fileName
-    print(fileName)
-    tableNameGenomewideSignificant <- paste(fileName, "genome_wide.tsv", sep="")
-    tableNameHighlySignificant <- paste(fileName, "highly_signif.tsv", sep = "")
-    fileName <- paste(fileName, "png", sep="")
+    tableNameGenomewideSignificant <- paste(argument$run_name, "_genome_wide.tsv", sep="")
+    tableNameHighlySignificant <- paste(argument$run_name, "_highly_signif.tsv", sep = "")
+    fileName <- paste(argument$run_name, ".png", sep="")
 
 
     colnames(newdf) <- c("SNP", "CHR", "BP", "P")
@@ -77,8 +78,8 @@ leqtar_create_manhattan_plots <- function(arguments) {
     print(newdf)
     # genome wide significance
     print("Writing tables..")
-    genwide_sig_snps <- newdf[which(newdf$P < 5e-08 ),]
-    highly_significant_snps <- newdf[which(newdf$P < 1e-05 & newdf$P > 5e-08),]
+    genwide_sig_snps <- newdf[which( as.numeric(newdf$P) < 5e-08 ),]
+    highly_significant_snps <- newdf[which( as.numeric(newdf$P) < 1e-05 & as.numeric(newdf$P) > 5e-08),]
     write.table(genwide_sig_snps, file= file.path("..", "results", type, "figures", "manhattan", tableNameGenomewideSignificant, fsep=.Platform$file.sep),
                 quote = F, sep="\t" )
     write.table(highly_significant_snps, file= file.path("..", "results", type, "figures", "manhattan", tableNameHighlySignificant, fsep=.Platform$file.sep),
